@@ -1,6 +1,6 @@
 import type { Email } from '@/types/email';
 import { cn } from '@/lib/utils';
-import { Search, RotateCw, CheckSquare, Trash2, MailOpen } from 'lucide-react';
+import { Search, RotateCw, CheckSquare, Trash2, MailOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -112,6 +112,15 @@ export function EmailList({
             ))}
           </div>
         )}
+      </div>
+      
+      {/* Pagination Mockup */}
+      <div className="p-2 border-t flex items-center justify-between text-sm text-muted-foreground bg-gray-50/50">
+        <span>1-{Math.min(emails.length, 25)} of {emails.length > 0 ? 100 : 0}</span>
+        <div className="flex gap-1">
+             <Button variant="ghost" size="icon" disabled><ChevronLeft className="h-4 w-4" /></Button>
+             <Button variant="ghost" size="icon" disabled={emails.length === 0}><ChevronRight className="h-4 w-4" /></Button>
+        </div>
       </div>
     </div>
   );

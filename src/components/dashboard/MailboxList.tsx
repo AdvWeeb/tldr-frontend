@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Mailbox } from '@/types/email';
 import { cn } from '@/lib/utils';
 import {
@@ -7,7 +8,9 @@ import {
   Trash2,
   Archive,
   Star,
-  Folder
+  Folder,
+  Plus,
+  X
 } from 'lucide-react';
 
 interface MailboxListProps {
@@ -16,7 +19,8 @@ interface MailboxListProps {
   onSelectMailbox: (id: string) => void;
 }
 
-export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: MailboxListProps) {
+export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: Readonly<MailboxListProps>) {
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
   
   const getIcon = (type: string, iconName?: string) => {
     switch (type) {
@@ -34,6 +38,17 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: M
 
   return (
     <div className="flex flex-col gap-1 py-2">
+      {/* Compose Button */}
+      <div className="px-4 mb-2">
+        <button 
+          onClick={() => setIsComposeOpen(true)}
+          className="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full shadow-md font-medium transition-all"
+        >
+           <Plus className="h-5 w-5" />
+           <span className="lg:inline">Compose</span>
+        </button>
+      </div>
+
       <h2 className="px-4 py-2 text-lg font-semibold tracking-tight">
         Mailboxes
       </h2>
@@ -66,7 +81,29 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: M
           </button>
         ))}
       </nav>
+
+      {/* Compose Modal Mockup */}
+      {isComposeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
+                <div className="bg-gray-100 px-4 py-3 border-b flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-800">New Message</h3>
+                    <button onClick={() => setIsComposeOpen(false)} className="text-gray-500 hover:text-gray-700">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+                    <input placeholder="To" className="w-full p-2 border-b focus:outline-none focus:border-blue-500 transition-colors" />
+                    <input placeholder="Subject" className="w-full p-2 border-b focus:outline-none focus:border-blue-500 transition-colors" />
+                    <textarea placeholder="Message..." className="w-full h-40 p-2 resize-none focus:outline-none" />
+                </div>
+                <div className="p-3 border-t flex justify-end gap-2 bg-gray-50">
+                     <button onClick={() => setIsComposeOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded transition-colors">Discard</button>
+                     <button onClick={() => setIsComposeOpen(false)} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition-colors">Send</button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
-
