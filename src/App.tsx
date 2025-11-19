@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Inbox } from './pages/Inbox';
 import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './components/AuthProvider';
 import './App.css';
 
 // Create a client
@@ -29,21 +30,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Dashboard />} />
-            <Route
-              path="/inbox"
-              element={
-                <PrivateRoute>
-                  <Inbox />
-                </PrivateRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Dashboard />} />
+              <Route
+                path="/inbox"
+                element={
+                  <PrivateRoute>
+                    <Inbox />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </AuthProvider>
       </GoogleOAuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

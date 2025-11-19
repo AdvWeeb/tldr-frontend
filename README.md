@@ -1,6 +1,8 @@
 # SecureMail React SPA
 
-This project is a modern, secure single-page application built with React, TypeScript, and Vite. It demonstrates a complete and robust authentication system featuring email/password login, Google Sign-In (OAuth), automatic token refresh, and protected routes. The UI is crafted with **shadcn/ui** and **Tailwind CSS** for a clean and responsive design.
+This project is a modern, secure single-page application built with React, TypeScript, and Vite. It demonstrates a complete and robust authentication system featuring email/password login, Google Sign-In (OAuth), automatic token refresh, and protected routes. It also includes a fully functional **Email Dashboard Mockup** with a responsive 3-column layout.
+
+**Live Demo:** [Insert Your Deployed URL Here]
 
 ![SecureMail Login Page](https://i.imgur.com/your-login-page-screenshot.png) <!-- Optional: Add a screenshot -->
 
@@ -16,6 +18,10 @@ This project is a modern, secure single-page application built with React, TypeS
 - **Advanced API Client**:
   - Axios-based client with interceptors for automatically attaching bearer tokens.
   - Built-in request queuing to handle concurrent API calls during token refresh, preventing race conditions.
+- **Email Dashboard Mockup**:
+  - **3-Column Layout**: Mailboxes (Folders), Email List, and Email Detail view.
+  - **Responsive Design**: Adapts seamlessly from desktop (3 columns) to tablet (2 columns) and mobile (1 column with navigation).
+  - **Mock Data API**: Realistic simulation of email data fetching with latency.
 - **Protected Routes**:
   - Client-side routing with `react-router-dom`.
   - `PrivateRoute` component to guard routes and redirect unauthenticated users.
@@ -102,23 +108,28 @@ For this application, `localStorage` was chosen to provide a persistent session 
 ├── src/
 │   ├── assets/
 │   ├── components/
-│   │   ├── ui/         # shadcn/ui components
+│   │   ├── dashboard/      # Dashboard components (MailboxList, EmailList, EmailDetail)
+│   │   ├── ui/             # shadcn/ui components
 │   │   ├── Navigation.tsx
 │   │   └── PrivateRoute.tsx
 │   ├── hooks/
-│   │   └── useAuth.ts  # React Query auth hooks
+│   │   ├── useAuth.ts      # Auth hooks
+│   │   └── useEmail.ts     # Email data hooks
 │   ├── lib/
 │   ├── pages/
-│   │   ├── Dashboard.tsx
-│   │   ├── Inbox.tsx
+│   │   ├── Dashboard.tsx   # Landing page
+│   │   ├── Inbox.tsx       # Main Email Dashboard
 │   │   └── Login.tsx
 │   ├── schemas/
-│   │   └── loginSchema.ts # Zod validation schema
+│   │   └── loginSchema.ts
 │   ├── services/
-│   │   ├── apiClient.ts   # Axios client with interceptors
-│   │   └── mockAuthApi.ts # Mock backend API
-│   └── store/
-│       └── authStore.ts   # Zustand global store
+│   │   ├── apiClient.ts    # Axios client with interceptors
+│   │   ├── mockAuthApi.ts  # Mock Auth API
+│   │   └── mockEmailApi.ts # Mock Email API & Data
+│   ├── store/
+│   │   └── authStore.ts    # Zustand store
+│   └── types/
+│       └── email.ts        # Type definitions
 ├── .env.example
 ├── index.html
 ├── package.json

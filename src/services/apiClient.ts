@@ -96,8 +96,12 @@ apiClient.interceptors.response.use(
         const response = await mockAuthApi.refreshToken(refreshToken);
         const newAccessToken = response.accessToken;
 
-        // Update access token in store
-        useAuthStore.getState().setAccessToken(newAccessToken);
+        // Update access token and user in store
+        if (response.user) {
+          useAuthStore.getState().setUser(response.user, newAccessToken);
+        } else {
+          useAuthStore.getState().setAccessToken(newAccessToken);
+        }
 
         // Process queued requests with new token
         processQueue(null, newAccessToken);
