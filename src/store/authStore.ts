@@ -1,11 +1,19 @@
 import { create } from 'zustand';
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  name: string;
-  picture?: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string | null;
+  isEmailVerified: boolean;
 }
+
+// Helper to get display name
+export const getUserDisplayName = (user: User | null): string => {
+  if (!user) return '';
+  return `${user.firstName} ${user.lastName}`.trim() || user.email;
+};
 
 interface AuthState {
   user: User | null;

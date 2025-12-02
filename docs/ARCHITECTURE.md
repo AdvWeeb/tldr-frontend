@@ -2,7 +2,7 @@
 
 ## Overview
 
-SecureMail is a single-page application (SPA) built with React that demonstrates secure authentication patterns using email/password and Google OAuth. The application follows a component-based architecture with centralized state management and protected routing.
+The application is a full-stack email client built with React frontend and NestJS backend. It implements secure OAuth 2.0 authentication with Google for Gmail access, JWT-based session management, and real-time email synchronization.
 
 ## Architecture Diagram
 
@@ -123,14 +123,15 @@ Request → Interceptor → Add Token → Backend
 #### Component Hierarchy
 ```
 App
-├── GoogleOAuthProvider
-│   └── Router
-│       ├── /login → Login
-│       ├── / → Dashboard
-│       │   └── Navigation
-│       └── /inbox → PrivateRoute
-│           └── Inbox
-│               └── Navigation
+└── AuthProvider (Session Restoration)
+    └── Router
+        ├── /login → Login
+        ├── /auth/callback → OAuthCallback
+        ├── / → Dashboard
+        │   └── Navigation
+        └── /inbox → PrivateRoute
+            └── Inbox
+                └── Navigation
 ```
 
 #### Navigation Component (`src/components/Navigation.tsx`)
@@ -173,25 +174,48 @@ App
 #### Email/Password Login
 ```
 1. User enters credentials
-2. Login.tsx calls mockAuthApi.login()
-3. Mock API returns { user, accessToken, refreshToken }
+2. Login.tsx calls authApi.login() (POST /v1/auth/login)
+3. Backend returns { user, accessToken, refreshToken }
 4. Store accessToken in Zustand (memory)
 5. Store refreshToken in localStorage
-6. Update user state
-7. Redirect to /dashboard
+6. Fetch user profile from GET /v1/users/me
+7. Update user state
+8. Redirect to /dashboard
 ```
 
 #### Google OAuth Login
 ```
-1. User clicks Google Sign-In button
-2. Google OAuth popup opens
-3. User authorizes the application
-4. Google returns credential token
-5. Login.tsx calls mockAuthApi.googleLogin()
-6. Mock API returns { user, accessToken, refreshToken }
-7. Same token storage as email/password
-8. Redirect to /dashboard
+1. User clicks "Sign in with Google"
+2. Frontend generates PKCE code_verifier and code_challenge
+3. Redirect to Google OAuth URL with challenge and state
+4. User authorizes on Google consent screen
+5. Google redirects to /auth/callback?code=...&state=...
+6. OAuthCallback validates state (CSRF protection)
+7. Extract code, retrieve code_verifier from sessionStorage
+8. Call authApi.googleLogin({ code, codeVerifier })
+9. Backend exchanges code for Google tokens (server-to-server)
+10. Backend stores Google refresh token (encrypted)
+11. Backend returns app tokens
+12. Store tokens same as email/password
+13. Redirect to /inbox
 ```
+
+**See `docs/OAUTH_GUIDE.md` for complete OAuth documentation.**
+
+#### Session Restoration (Page Refresh)
+```
+1. App loads, AuthProvider component mounts
+2. Check localStorage for refreshToken
+3. If found: call POST /v1/auth/refresh
+4. Backend validates refresh token
+5. Backend returns new access token AND new refresh token (rotation)
+6. Store both tokens
+7. Call GET /v1/users/me to fetch user profile
+8. Update Zustand store with user and accessToken
+9. User session restored (stays logged in)
+```
+
+This happens automatically on every app load, making sessions persist across page refreshes.
 
 #### Token Refresh Flow
 ```
@@ -315,19 +339,14 @@ Component (success/error handling)
 
 ## Scalability Considerations
 
-### Current Architecture Limitations
-- Client-side only (no SSR)
-- Mock authentication (no real backend)
-- No database persistence
-- No email functionality
+### Current Architecture
+- Full-stack application with React + NestJS
+- OAuth 2.0 with PKCE for Google authentication
+- JWT-based session management
+- PostgreSQL for data persistence
+- Gmail API integration for email operations
 
-### Future Enhancements
-1. **Backend Integration**
-   - Replace mock API with real backend
-   - Implement proper JWT validation
-   - Add database for user management
-
-2. **Email Features**
+### Future Enhancements**
    - Send/receive emails
    - Attachments support
    - Search functionality

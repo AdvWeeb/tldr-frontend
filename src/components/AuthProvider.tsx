@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore, getRefreshToken } from '@/store/authStore';
-import { mockAuthApi } from '@/services/mockAuthApi';
+import { useAuthStore, getRefreshToken, setRefreshToken } from '@/store/authStore';
+import { authApi } from '@/services/authApi';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, logout } = useAuthStore();
+  const { setUser, setAccessToken, logout } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
@@ -15,9 +15,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        // Try to restore session using refresh token
-        const response = await mockAuthApi.refreshToken(refreshToken);
-        setUser(response.user, response.accessToken);
+        console.log('AuthProvider: Refreshing token...');
+        // Use the real API to refresh the token
+        const response = await authApi.refreshToken(refreshToken);
+        console.log('AuthProvider: Token refreshed successfully, userId:', response.userId);
+        
+        // Update the access token in the store
+        setAccessToken(response.tokens.accessToken);
+        
+        // The backend might issue a new rotated refresh token
+        setRefreshToken(response.refreshToken);
+        console.log('AuthProvider: Tokens stored, fetching user profile...');
+
+        // Fetch user profile with the new access token
+        const user = await authApi.getProfile();
+        console.log('AuthProvider: User profile fetched:', user.email);
+        setUser(user, response.tokens.accessToken);
+        console.log('AuthProvider: Session restored successfully');
+
       } catch (error) {
         console.error('Failed to restore session:', error);
         logout(); // Clear invalid token
@@ -27,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, [setUser, logout]);
+  }, [setUser, setAccessToken, logout]);
 
   if (isChecking) {
     return (

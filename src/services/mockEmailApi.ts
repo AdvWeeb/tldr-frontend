@@ -13,68 +13,60 @@ const mockMailboxes: Mailbox[] = [
 ];
 
 const generateMockEmails = (): Email[] => {
-  return [
-    {
-      id: '1',
-      mailboxId: 'inbox',
-      sender: { name: 'Alice Smith', email: 'alice@example.com', avatar: 'https://i.pravatar.cc/150?u=alice' },
-      subject: 'Project Update: Q4 Goals',
-      preview: 'Hi team, wanted to share the latest updates on our Q4 goals...',
-      body: '<p>Hi team,</p><p>Wanted to share the latest updates on our Q4 goals. We are making great progress.</p><p>Best,<br>Alice</p>',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
-      isRead: false,
-      isStarred: true,
-      hasAttachments: true,
-    },
-    {
-      id: '2',
-      mailboxId: 'inbox',
-      sender: { name: 'Bob Jones', email: 'bob@example.com', avatar: 'https://i.pravatar.cc/150?u=bob' },
-      subject: 'Lunch tomorrow?',
-      preview: 'Hey, are you free for lunch tomorrow at 12:30? There is a new place...',
-      body: '<p>Hey,</p><p>Are you free for lunch tomorrow at 12:30? There is a new place down the street.</p>',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      isRead: false,
-      isStarred: false,
-      hasAttachments: false,
-    },
-    {
-      id: '3',
-      mailboxId: 'inbox',
-      sender: { name: 'Support Team', email: 'support@service.com' },
-      subject: 'Ticket #12345 Resolved',
-      preview: 'Your support ticket has been resolved. Please let us know if you...',
-      body: '<p>Your support ticket has been resolved.</p><p>Please let us know if you need further assistance.</p>',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      isRead: true,
-      isStarred: false,
-      hasAttachments: false,
-    },
-    {
-      id: '4',
-      mailboxId: 'sent',
-      sender: { name: 'Me', email: 'me@example.com' },
-      subject: 'Re: Project Update',
-      preview: 'Thanks for the update, Alice. Looks good to me.',
-      body: '<p>Thanks for the update, Alice. Looks good to me.</p>',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-      isRead: true,
-      isStarred: false,
-      hasAttachments: false,
-    },
-    {
-      id: '5',
-      mailboxId: 'personal',
-      sender: { name: 'Mom', email: 'mom@family.com' },
-      subject: 'Family Dinner',
-      preview: 'Don\'t forget about dinner this Sunday!',
-      body: '<p>Don\'t forget about dinner this Sunday! Love you.</p>',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-      isRead: false,
-      isStarred: true,
-      hasAttachments: false,
-    }
+  const emails: Email[] = [];
+  const senders = [
+    { name: 'Alice Smith', email: 'alice@example.com', avatar: 'https://i.pravatar.cc/150?u=alice' },
+    { name: 'Bob Jones', email: 'bob@example.com', avatar: 'https://i.pravatar.cc/150?u=bob' },
+    { name: 'Carol Williams', email: 'carol@example.com', avatar: 'https://i.pravatar.cc/150?u=carol' },
+    { name: 'David Brown', email: 'david@example.com', avatar: 'https://i.pravatar.cc/150?u=david' },
+    { name: 'Emma Davis', email: 'emma@example.com', avatar: 'https://i.pravatar.cc/150?u=emma' },
+    { name: 'Frank Miller', email: 'frank@example.com', avatar: 'https://i.pravatar.cc/150?u=frank' },
+    { name: 'Grace Wilson', email: 'grace@example.com', avatar: 'https://i.pravatar.cc/150?u=grace' },
+    { name: 'Henry Moore', email: 'henry@example.com', avatar: 'https://i.pravatar.cc/150?u=henry' },
+    { name: 'Support Team', email: 'support@service.com' },
+    { name: 'Newsletter', email: 'news@tech.com' },
+    { name: 'Mom', email: 'mom@family.com' },
   ];
+
+  const subjects = [
+    'Project Update: Q4 Goals',
+    'Lunch tomorrow?',
+    'Meeting Notes',
+    'Ticket Resolved',
+    'Weekly Report',
+    'Action Required: Review Document',
+    'Family Dinner Plans',
+    'Conference Registration',
+    'Password Reset Request',
+    'Invoice Available',
+    'New Features Released',
+    'System Maintenance Notice',
+  ];
+
+  const mailboxes = ['inbox', 'inbox', 'inbox', 'inbox', 'sent', 'personal', 'work'];
+
+  // Generate 150 emails
+  for (let i = 1; i <= 150; i++) {
+    const sender = senders[i % senders.length];
+    const subject = subjects[i % subjects.length];
+    const mailboxId = mailboxes[i % mailboxes.length];
+    const hoursAgo = i * 2;
+    
+    emails.push({
+      id: String(i),
+      mailboxId,
+      sender,
+      subject: `${subject} ${i > 12 ? `#${i}` : ''}`,
+      preview: `This is email preview text for message ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit...`,
+      body: `<p>This is the body of email ${i}.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p><p>Best regards,<br>${sender.name}</p>`,
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * hoursAgo).toISOString(),
+      isRead: i > 5,
+      isStarred: i % 10 === 0,
+      hasAttachments: i % 7 === 0,
+    });
+  }
+
+  return emails;
 };
 
 let mockEmails = generateMockEmails();
@@ -108,8 +100,15 @@ export const mockEmailApi = {
       );
     }
 
+    // Pagination
+    const page = filter.page || 1;
+    const limit = filter.limit || 50;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginated = filtered.slice(startIndex, endIndex);
+
     return {
-      emails: filtered,
+      emails: paginated,
       total: filtered.length
     };
   },

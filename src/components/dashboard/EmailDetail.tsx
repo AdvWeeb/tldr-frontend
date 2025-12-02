@@ -1,4 +1,3 @@
-import type { Email } from '@/types/email';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -13,7 +12,7 @@ import {
 } from 'lucide-react';
 
 interface EmailDetailProps {
-  email: Email | null | undefined;
+  email: any; // Backend email detail type
   onClose?: () => void; // For mobile view
 }
 
@@ -69,7 +68,7 @@ export function EmailDetail({ email, onClose }: EmailDetailProps) {
            <h1 className="text-2xl font-bold leading-tight">{email.subject}</h1>
            {email.labels && email.labels.length > 0 && (
                <div className="flex gap-2">
-                   {email.labels.map(label => (
+                   {email.labels.map((label: string) => (
                        <span key={label} className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">{label}</span>
                    ))}
                </div>

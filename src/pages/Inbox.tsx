@@ -3,36 +3,151 @@ import { Navigation } from '@/components/Navigation';
 import { MailboxList } from '@/components/dashboard/MailboxList';
 import { EmailList } from '@/components/dashboard/EmailList';
 import { EmailDetail } from '@/components/dashboard/EmailDetail';
-import { useMailboxes, useEmails, useEmail } from '@/hooks/useEmail';
+import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
+import { useMailboxes, useEmails, useEmail, useEmailMutations } from '@/hooks/useEmail';
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function Inbox() {
-  const [selectedMailboxId, setSelectedMailboxId] = useState('inbox');
-  const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+  const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null);
+  const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
 
   // Data Fetching
   const { data: mailboxes = [] } = useMailboxes();
+  
+  // Set first mailbox as selected when mailboxes load
+  useEffect(() => {
+    if (mailboxes.length > 0 && selectedMailboxId === null) {
+      setSelectedMailboxId(mailboxes[0].id);
+    }
+  }, [mailboxes, selectedMailboxId]);
+  
   const { 
     data: emailData, 
     isLoading: isLoadingEmails, 
     refetch: refreshEmails 
   } = useEmails({ 
-    mailboxId: selectedMailboxId, 
-    search: searchTerm 
+    mailboxId: selectedMailboxId ?? undefined, 
+    search: searchTerm,
+    page,
+    limit: pageSize,
   });
   
   const { data: selectedEmail } = useEmail(selectedEmailId);
+  const { toggleStar, markAsRead, deleteEmail } = useEmailMutations();
 
-  // Reset selection when mailbox changes
+  const emails = emailData?.data || [];
+  const totalEmails = emailData?.meta.totalItems || 0;
+
+  // Reset selection and page when mailbox changes
   useEffect(() => {
     setSelectedEmailId(null);
+    setPage(1);
     setIsMobileMenuOpen(false);
   }, [selectedMailboxId]);
 
-  const emails = emailData?.emails || [];
+  // Reset page when search term changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
+  // Keyboard navigation handlers
+  const handleNext = () => {
+    if (emails.length === 0) return;
+    
+    if (!selectedEmailId) {
+      setSelectedEmailId(emails[0].id);
+    } else {
+      const currentIndex = emails.findIndex(e => e.id === selectedEmailId);
+      if (currentIndex < emails.length - 1) {
+        setSelectedEmailId(emails[currentIndex + 1].id);
+      } else if (page < Math.ceil(totalEmails / pageSize)) {
+        // Move to next page
+        setPage(page + 1);
+        // Wait for new data and select first email
+        setTimeout(() => {
+          if (emails.length > 0) {
+            setSelectedEmailId(emails[0].id);
+          }
+        }, 100);
+      }
+    }
+  };
+
+  const handlePrevious = () => {
+    if (emails.length === 0) return;
+    
+    if (!selectedEmailId) {
+      setSelectedEmailId(emails[emails.length - 1].id);
+    } else {
+      const currentIndex = emails.findIndex(e => e.id === selectedEmailId);
+      if (currentIndex > 0) {
+        setSelectedEmailId(emails[currentIndex - 1].id);
+      } else if (page > 1) {
+        // Move to previous page
+        setPage(page - 1);
+      }
+    }
+  };
+
+  const handleOpen = () => {
+    if (selectedEmailId && selectedEmail && !selectedEmail.isRead) {
+      markAsRead.mutate({ id: selectedEmailId, isRead: true });
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedEmailId(null);
+  };
+
+  const handleStar = () => {
+    if (selectedEmailId && selectedEmail) {
+      toggleStar.mutate({ 
+        id: selectedEmailId, 
+        isStarred: !selectedEmail.isStarred 
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedEmailId) {
+      deleteEmail.mutate(selectedEmailId);
+      // Select next email after deletion
+      const currentIndex = emails.findIndex(e => e.id === selectedEmailId);
+      if (currentIndex < emails.length - 1) {
+        setSelectedEmailId(emails[currentIndex + 1].id);
+      } else if (currentIndex > 0) {
+        setSelectedEmailId(emails[currentIndex - 1].id);
+      } else {
+        setSelectedEmailId(null);
+      }
+    }
+  };
+
+  const handleSearch = () => {
+    const searchInput = document.getElementById('email-search-input') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+    }
+  };
+
+  // Enable keyboard navigation
+  useKeyboardNavigation({
+    enabled: true,
+    onNext: handleNext,
+    onPrevious: handlePrevious,
+    onOpen: handleOpen,
+    onClose: handleClose,
+    onStar: handleStar,
+    onDelete: handleDelete,
+    onSearch: handleSearch,
+    onRefresh: refreshEmails,
+  });
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -89,6 +204,10 @@ export function Inbox() {
             isLoading={isLoadingEmails}
             onSearch={setSearchTerm}
             onRefresh={refreshEmails}
+            page={page}
+            totalEmails={totalEmails}
+            pageSize={pageSize}
+            onPageChange={setPage}
           />
         </main>
 
@@ -117,6 +236,9 @@ export function Inbox() {
         </aside>
 
       </div>
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp />
     </div>
   );
 }

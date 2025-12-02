@@ -1,9 +1,8 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosError } from 'axios';
-import { useAuthStore, getRefreshToken, removeRefreshToken } from '../store/authStore';
-import { mockAuthApi } from './mockAuthApi';
+import { useAuthStore, getRefreshToken, removeRefreshToken, setRefreshToken } from '../store/authStore';
 
-// Base URL for API (in production, this would be your actual API endpoint)
-const BASE_URL = '/api';
+// Base URL for API from environment variable
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/v1';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -93,15 +92,16 @@ apiClient.interceptors.response.use(
 
       try {
         // Attempt to refresh the access token
-        const response = await mockAuthApi.refreshToken(refreshToken);
-        const newAccessToken = response.accessToken;
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refreshToken,
+        });
+        
+        const newAccessToken = response.data.tokens.accessToken;
+        const newRefreshToken = response.data.refreshToken;
 
-        // Update access token and user in store
-        if (response.user) {
-          useAuthStore.getState().setUser(response.user, newAccessToken);
-        } else {
-          useAuthStore.getState().setAccessToken(newAccessToken);
-        }
+        // Update tokens in store and localStorage
+        useAuthStore.getState().setAccessToken(newAccessToken);
+        setRefreshToken(newRefreshToken);
 
         // Process queued requests with new token
         processQueue(null, newAccessToken);

@@ -1,28 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { mockAuthApi } from '@/services/mockAuthApi';
-import { useAuthStore } from '@/store/authStore';
-import type { User } from '@/store/authStore';
-
-// Types
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface GoogleCredentials {
-  credential: string;
-}
-
-interface AuthResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
-interface RefreshResponse {
-  accessToken: string;
-}
+import { authApi, type AuthResponse, type LoginCredentials, type RegisterData, type GoogleAuthData } from '@/services/authApi';
+import { useAuthStore, setRefreshToken } from '@/store/authStore';
 
 // Query keys
 export const authKeys = {
@@ -34,24 +13,21 @@ export const authKeys = {
 export function useLogin() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setUser } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
 
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await mockAuthApi.login(
-        credentials.email,
-        credentials.password
-      );
+      const response = await authApi.login(credentials);
       return response;
     },
     onSuccess: (data: AuthResponse) => {
-      // Update auth store
-      setUser(data.user, data.accessToken);
+      // Update auth store with access token
+      setAccessToken(data.tokens.accessToken);
       
       // Store refresh token
-      localStorage.setItem('refreshToken', data.refreshToken);
+      setRefreshToken(data.refreshToken);
       
-      // Invalidate user query to trigger refetch
+      // Fetch user profile and update store
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
       
       // Navigate to dashboard
@@ -63,25 +39,68 @@ export function useLogin() {
   });
 }
 
-// Google login mutation
-export function useGoogleLogin() {
+// Register mutation
+export function useRegister() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setUser } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
 
   return useMutation({
-    mutationFn: async (credentials: GoogleCredentials) => {
-      const response = await mockAuthApi.googleLogin(credentials.credential);
+    mutationFn: async (data: RegisterData) => {
+      const response = await authApi.register(data);
       return response;
     },
     onSuccess: (data: AuthResponse) => {
       // Update auth store
-      setUser(data.user, data.accessToken);
+      setAccessToken(data.tokens.accessToken);
       
       // Store refresh token
-      localStorage.setItem('refreshToken', data.refreshToken);
+      setRefreshToken(data.refreshToken);
       
-      // Invalidate user query to trigger refetch
+      // Invalidate user query
+      queryClient.invalidateQueries({ queryKey: authKeys.user() });
+      
+      // Navigate to dashboard
+      navigate('/inbox');
+    },
+    onError: (error: Error) => {
+      console.error('Registration failed:', error);
+    },
+  });
+}
+
+// Initiate Google OAuth flow (redirects to Google)
+export function useInitiateGoogleOAuth() {
+  return useMutation({
+    mutationFn: async () => {
+      await authApi.initiateGoogleOAuth();
+      // This will redirect, so we never return
+    },
+    onError: (error: Error) => {
+      console.error('Failed to initiate Google OAuth:', error);
+    },
+  });
+}
+
+// Google OAuth callback mutation (exchanges code for tokens)
+export function useGoogleLogin() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { setAccessToken } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (data: GoogleAuthData) => {
+      const response = await authApi.googleAuth(data);
+      return response;
+    },
+    onSuccess: (data: AuthResponse) => {
+      // Update auth store
+      setAccessToken(data.tokens.accessToken);
+      
+      // Store refresh token
+      setRefreshToken(data.refreshToken);
+      
+      // Invalidate user query
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
       
       // Navigate to dashboard
@@ -100,17 +119,15 @@ export function useLogout() {
   const { logout: logoutStore } = useAuthStore();
 
   return useMutation({
-    mutationFn: async () => {
-      // In a real app, you would call an API endpoint to invalidate the refresh token
-      // await apiClient.post('/auth/logout');
-      return Promise.resolve();
+    mutationFn: async (revokeAll: boolean = false) => {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await authApi.logout(refreshToken, revokeAll);
+      }
     },
     onSuccess: () => {
       // Clear auth store
       logoutStore();
-      
-      // Remove refresh token
-      localStorage.removeItem('refreshToken');
       
       // Clear all queries
       queryClient.clear();
@@ -122,7 +139,6 @@ export function useLogout() {
       console.error('Logout failed:', error);
       // Even if logout fails, clear local state
       logoutStore();
-      localStorage.removeItem('refreshToken');
       navigate('/login');
     },
   });
@@ -130,16 +146,16 @@ export function useLogout() {
 
 // Fetch user data (for protected routes)
 export function useUser() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, setUser, accessToken } = useAuthStore();
 
   return useQuery({
     queryKey: authKeys.user(),
     queryFn: async () => {
-      // In a real app, fetch user data from API
-      // const response = await apiClient.get('/auth/me');
-      // return response.data;
-      
-      // For now, return user from store
+      const user = await authApi.getProfile();
+      // Update store with fetched user data
+      if (accessToken) {
+        setUser(user, accessToken);
+      }
       return user;
     },
     enabled: isAuthenticated, // Only fetch when authenticated
@@ -150,7 +166,7 @@ export function useUser() {
 
 // Refresh token mutation
 export function useRefreshToken() {
-  const { setUser } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -160,15 +176,13 @@ export function useRefreshToken() {
         throw new Error('No refresh token available');
       }
       
-      const response = await mockAuthApi.refreshToken(refreshToken);
+      const response = await authApi.refreshToken(refreshToken);
       return response;
     },
-    onSuccess: (data: RefreshResponse) => {
-      // Update auth store with new access token
-      const currentUser = useAuthStore.getState().user;
-      if (currentUser) {
-        setUser(currentUser, data.accessToken);
-      }
+    onSuccess: (data: AuthResponse) => {
+      // Update auth store with new tokens
+      setAccessToken(data.tokens.accessToken);
+      setRefreshToken(data.refreshToken);
       
       // Invalidate user query
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
@@ -177,7 +191,6 @@ export function useRefreshToken() {
       console.error('Token refresh failed:', error);
       // Clear auth state on refresh failure
       useAuthStore.getState().logout();
-      localStorage.removeItem('refreshToken');
     },
   });
 }

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, getUserDisplayName } from '@/store/authStore';
 import { useLogout } from '@/hooks/useAuth';
 
 export function Navigation() {
@@ -18,16 +18,20 @@ export function Navigation() {
   const logoutMutation = useLogout();
 
   const getInitials = (name: string) => {
+    if (!name) return '?';
     return name
       .split(' ')
       .map((n) => n[0])
       .join('')
-      .toUpperCase();
+      .toUpperCase()
+      .slice(0, 2); // Max 2 letters
   };
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    logoutMutation.mutate(false);
   };
+
+  const displayName = getUserDisplayName(user);
 
   return (
     <nav className="border-b">
@@ -46,9 +50,9 @@ export function Navigation() {
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <Avatar>
-                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                      <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">{user.name}</span>
+                    <span className="font-medium">{displayName}</span>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

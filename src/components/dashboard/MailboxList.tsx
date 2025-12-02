@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { Mailbox } from '@/types/email';
 import { cn } from '@/lib/utils';
 import {
   Inbox,
@@ -14,26 +13,16 @@ import {
 } from 'lucide-react';
 
 interface MailboxListProps {
-  mailboxes: Mailbox[];
-  selectedMailboxId: string;
-  onSelectMailbox: (id: string) => void;
+  mailboxes: any[]; // Backend mailbox type
+  selectedMailboxId: number | null;
+  onSelectMailbox: (id: number) => void;
 }
 
 export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: Readonly<MailboxListProps>) {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   
-  const getIcon = (type: string, iconName?: string) => {
-    switch (type) {
-      case 'inbox': return <Inbox className="h-4 w-4" />;
-      case 'sent': return <Send className="h-4 w-4" />;
-      case 'drafts': return <File className="h-4 w-4" />;
-      case 'trash': return <Trash2 className="h-4 w-4" />;
-      case 'archive': return <Archive className="h-4 w-4" />;
-      case 'custom': 
-        if (iconName === 'Star') return <Star className="h-4 w-4" />;
-        return <Folder className="h-4 w-4" />;
-      default: return <Folder className="h-4 w-4" />;
-    }
+  const getIcon = () => {
+    return <Inbox className="h-4 w-4" />;
   };
 
   return (
@@ -65,8 +54,8 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox }: R
             )}
           >
             <div className="flex items-center gap-3">
-              {getIcon(mailbox.type, mailbox.icon)}
-              <span>{mailbox.name}</span>
+              {getIcon()}
+              <span>{mailbox.email}</span>
             </div>
             {mailbox.unreadCount && mailbox.unreadCount > 0 && (
               <span className={cn(
