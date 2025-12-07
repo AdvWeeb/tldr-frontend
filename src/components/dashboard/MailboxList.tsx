@@ -163,6 +163,7 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox, cur
         isOpen={isComposeOpen}
         onClose={() => setIsComposeOpen(false)}
         mode="compose"
+        mailboxId={selectedMailboxId || undefined}
       />
     </div>
   );
