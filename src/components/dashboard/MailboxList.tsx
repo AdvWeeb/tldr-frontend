@@ -20,9 +20,18 @@ interface MailboxListProps {
   selectedMailboxId: number | null;
   onSelectMailbox: (id: number) => void;
   currentMailbox?: any; // Current selected mailbox info
+  selectedFolder?: string;
+  onSelectFolder?: (folderId: string) => void;
 }
 
-export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox, currentMailbox }: Readonly<MailboxListProps>) {
+export function MailboxList({ 
+  mailboxes, 
+  selectedMailboxId, 
+  onSelectMailbox, 
+  currentMailbox,
+  selectedFolder = 'inbox',
+  onSelectFolder = () => {}
+}: Readonly<MailboxListProps>) {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
 
@@ -75,11 +84,16 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox, cur
         <nav className="space-y-0.5 px-2">
           {corefolders.map((folder) => {
             const Icon = folder.icon;
+            const isActive = selectedFolder === folder.id;
             return (
               <Button
                 key={folder.id}
                 variant="ghost"
-                className="w-full justify-between h-auto py-2 px-3 font-normal"
+                onClick={() => onSelectFolder(folder.id)}
+                className={cn(
+                  "w-full justify-between h-auto py-2 px-3 font-normal",
+                  isActive && "bg-blue-100 text-blue-900 hover:bg-blue-100"
+                )}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="h-4 w-4" />
@@ -109,11 +123,16 @@ export function MailboxList({ mailboxes, selectedMailboxId, onSelectMailbox, cur
           <nav className="space-y-0.5 px-2">
             {managementFolders.map((folder) => {
               const Icon = folder.icon;
+              const isActive = selectedFolder === folder.id;
               return (
                 <Button
                   key={folder.id}
                   variant="ghost"
-                  className="w-full justify-between h-auto py-2 px-3 font-normal"
+                  onClick={() => onSelectFolder(folder.id)}
+                  className={cn(
+                    "w-full justify-between h-auto py-2 px-3 font-normal",
+                    isActive && "bg-blue-100 text-blue-900 hover:bg-blue-100"
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className="h-4 w-4" />

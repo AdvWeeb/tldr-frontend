@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Navigation } from '@/components/Navigation';
 import { MailboxList } from '@/components/dashboard/MailboxList';
 import { EmailList } from '@/components/dashboard/EmailList';
@@ -10,8 +11,10 @@ import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function Inbox() {
+  const [searchParams] = useSearchParams();
   const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null);
   const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState('inbox');
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -34,16 +37,59 @@ export function Inbox() {
     }
   }, [mailboxes, selectedMailboxId]);
   
+  // Handle emailId from URL query params (e.g., from Kanban board)
+  useEffect(() => {
+    const emailIdParam = searchParams.get('emailId');
+    if (emailIdParam) {
+      const emailId = parseInt(emailIdParam, 10);
+      if (!isNaN(emailId)) {
+        setSelectedEmailId(emailId);
+      }
+    }
+  }, [searchParams]);
+  
+  // Build email query params based on selected folder
+  const getEmailQueryParams = () => {
+    const params: any = {
+      mailboxId: selectedMailboxId ?? undefined,
+      search: searchTerm,
+      page,
+      limit: pageSize,
+    };
+
+    switch (selectedFolder) {
+      case 'favorites':
+        params.isStarred = true;
+        break;
+      case 'drafts':
+        params.label = 'DRAFT';
+        break;
+      case 'sent':
+        params.label = 'SENT';
+        break;
+      case 'archive':
+        params.label = 'ARCHIVE';
+        break;
+      case 'spam':
+        params.label = 'SPAM';
+        break;
+      case 'bin':
+        params.label = 'TRASH';
+        break;
+      case 'inbox':
+      default:
+        // Inbox shows all emails without specific label filters
+        break;
+    }
+
+    return params;
+  };
+  
   const { 
     data: emailData, 
     isLoading: isLoadingEmails, 
     refetch: refreshEmails 
-  } = useEmails({ 
-    mailboxId: selectedMailboxId ?? undefined, 
-    search: searchTerm,
-    page,
-    limit: pageSize,
-  });
+  } = useEmails(getEmailQueryParams());
   
   const { data: selectedEmail } = useEmail(selectedEmailId);
   const { toggleStar, markAsRead, deleteEmail } = useEmailMutations();
@@ -78,6 +124,12 @@ export function Inbox() {
     setPage(1);
     setIsMobileMenuOpen(false);
   }, [selectedMailboxId]);
+
+  // Reset page when folder changes
+  useEffect(() => {
+    setSelectedEmailId(null);
+    setPage(1);
+  }, [selectedFolder]);
 
   // Reset page when search term changes
   useEffect(() => {
@@ -215,6 +267,8 @@ export function Inbox() {
             selectedMailboxId={selectedMailboxId}
             onSelectMailbox={setSelectedMailboxId}
             currentMailbox={currentMailbox}
+            selectedFolder={selectedFolder}
+            onSelectFolder={setSelectedFolder}
           />
         </aside>
 
@@ -233,6 +287,8 @@ export function Inbox() {
                 selectedMailboxId={selectedMailboxId}
                 onSelectMailbox={setSelectedMailboxId}
                 currentMailbox={currentMailbox}
+                selectedFolder={selectedFolder}
+                onSelectFolder={setSelectedFolder}
               />
             </div>
           </div>

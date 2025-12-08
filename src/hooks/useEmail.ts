@@ -15,7 +15,6 @@ export const useMailboxes = () => {
       return isSyncing ? 3000 : false;
     },
   });
-  
   return query; // This includes data, isLoading, refetch, etc.
 };
 

@@ -48,7 +48,7 @@ export function Navigation() {
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
                     <Avatar>
                       <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
                     </Avatar>
@@ -60,6 +60,9 @@ export function Navigation() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/inbox">Inbox</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/kanban">Kanban</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/">Dashboard</Link>
