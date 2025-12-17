@@ -5,8 +5,11 @@ import { MailboxList } from '@/components/dashboard/MailboxList';
 import { EmailList } from '@/components/dashboard/EmailList';
 import { EmailDetail } from '@/components/dashboard/EmailDetail';
 import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
+import { FilteringSortingToolbar } from '@/components/toolbar/FilteringSortingToolbar';
+import { SearchResults } from '@/components/search/SearchResults';
 import { useMailboxes, useEmails, useEmail, useEmailMutations } from '@/hooks/useEmail';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useUIStore } from '@/store/uiStore';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +22,9 @@ export function Inbox() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 50;
+
+  // UI state for view mode and filters
+  const { viewMode, filters, sortBy, sortOrder, setSelectedMailboxId: setUIMailboxId } = useUIStore();
 
   // Data Fetching
   const { data: mailboxes = [], isLoading: isLoadingMailboxes } = useMailboxes();
@@ -34,8 +40,9 @@ export function Inbox() {
     if (mailboxes.length > 0 && selectedMailboxId === null) {
       console.log('Setting first mailbox as selected:', mailboxes[0]);
       setSelectedMailboxId(mailboxes[0].id);
+      setUIMailboxId(mailboxes[0].id);
     }
-  }, [mailboxes, selectedMailboxId]);
+  }, [mailboxes, selectedMailboxId, setUIMailboxId]);
   
   // Handle emailId from URL query params (e.g., from Kanban board)
   useEffect(() => {
@@ -55,6 +62,9 @@ export function Inbox() {
       search: searchTerm,
       page,
       limit: pageSize,
+      sortBy,
+      sortOrder,
+      ...filters, // Include filters from UI store
     };
 
     switch (selectedFolder) {
@@ -257,12 +267,19 @@ export function Inbox() {
             </p>
           </div>
         </div>
+      ) : viewMode === 'SEARCH_VIEW' ? (
+        // Search View - Full width search results
+        <div className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-6 max-w-5xl">
+            <SearchResults onEmailClick={setSelectedEmailId} />
+          </div>
+        </div>
       ) : (
       <div className="flex-1 flex overflow-hidden relative">
-        
+
         {/* Left Sidebar (Mailboxes) - Desktop (LG+) only */}
         <aside className="hidden lg:block w-64 border-r bg-gray-50/50 overflow-y-auto flex-shrink-0">
-          <MailboxList 
+          <MailboxList
             mailboxes={mailboxes}
             selectedMailboxId={selectedMailboxId}
             onSelectMailbox={setSelectedMailboxId}
@@ -298,7 +315,7 @@ export function Inbox() {
         <main className={`
           flex flex-col border-r bg-white
           w-full md:w-[350px] md:flex-none
-          ${selectedEmailId ? 'hidden md:flex' : 'flex'} 
+          ${selectedEmailId ? 'hidden md:flex' : 'flex'}
         `}>
           {/* Mobile/Tablet Header for Menu */}
           <div className="lg:hidden p-2 border-b flex items-center bg-gray-50">
@@ -307,6 +324,9 @@ export function Inbox() {
              </Button>
              <span className="ml-2 font-semibold capitalize">{selectedMailboxId}</span>
           </div>
+
+          {/* Filtering and Sorting Toolbar */}
+          <FilteringSortingToolbar />
 
           <EmailList 
             emails={emails}

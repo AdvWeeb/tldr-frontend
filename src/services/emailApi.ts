@@ -123,6 +123,41 @@ export interface SummarizeEmailResponse {
   saved: boolean;
 }
 
+export interface FuzzySearchParams {
+  q?: string;
+  threshold?: number;
+  fields?: 'subject' | 'sender' | 'body' | 'all';
+  mailboxId?: number;
+  page?: number;
+  limit?: number;
+  subjectWeight?: number;
+  senderWeight?: number;
+  bodyWeight?: number;
+}
+
+export interface FuzzySearchMatch {
+  subject: number;
+  sender: number;
+  body?: number;
+}
+
+export interface FuzzySearchResult extends Email {
+  relevance: number;
+  matches: FuzzySearchMatch;
+}
+
+export interface FuzzySearchResponse {
+  data: FuzzySearchResult[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    query: string;
+    threshold: number;
+  };
+}
+
 export const emailApi = {
   // Mailbox operations
   getMailboxes: async (): Promise<Mailbox[]> => {
@@ -175,6 +210,12 @@ export const emailApi = {
 
   summarizeEmail: async (emailId: number): Promise<SummarizeEmailResponse> => {
     const response = await apiClient.post<SummarizeEmailResponse>(`/emails/${emailId}/summarize`);
+    return response.data;
+  },
+
+  // Search operations
+  fuzzySearch: async (params: FuzzySearchParams = {}): Promise<FuzzySearchResponse> => {
+    const response = await apiClient.get<FuzzySearchResponse>('/emails/search/fuzzy', { params });
     return response.data;
   },
 

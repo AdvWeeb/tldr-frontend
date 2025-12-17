@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
+import { FilteringSortingToolbar } from '@/components/toolbar/FilteringSortingToolbar';
+import { SearchResults } from '@/components/search/SearchResults';
 import { useMailboxes, useEmails, useEmailMutations } from '@/hooks/useEmail';
+import { useUIStore } from '@/store/uiStore';
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -9,12 +12,16 @@ const TOP_EMAILS_TO_SUMMARIZE = 5; // Summarize top 5 emails automatically
 
 export function Kanban() {
   const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null);
+  const [, setSelectedEmailId] = useState<number | null>(null);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [summarizingCount, setSummarizingCount] = useState(0);
 
+  // UI state for view mode and filters
+  const { viewMode, filters, sortBy, sortOrder, setSelectedMailboxId: setUIMailboxId } = useUIStore();
+
   // Fetch mailboxes
   const { data: mailboxes = [], isLoading: isLoadingMailboxes } = useMailboxes();
-  
+
   // Get summarize mutation
   const { summarizeEmail } = useEmailMutations();
 
@@ -22,13 +29,17 @@ export function Kanban() {
   useEffect(() => {
     if (mailboxes.length > 0 && selectedMailboxId === null) {
       setSelectedMailboxId(mailboxes[0].id);
+      setUIMailboxId(mailboxes[0].id);
     }
-  }, [mailboxes, selectedMailboxId]);
+  }, [mailboxes, selectedMailboxId, setUIMailboxId]);
 
-  // Fetch all emails for the selected mailbox
+  // Fetch all emails for the selected mailbox with filters and sorting
   const { data: emailData, isLoading: isLoadingEmails } = useEmails({
     mailboxId: selectedMailboxId ?? undefined,
-    limit: 50, // Get all emails
+    limit: 100, // Get more emails for filtering
+    sortBy,
+    sortOrder,
+    ...filters, // Spread filters from UI store
   });
 
   const emails = emailData?.data || [];
@@ -106,10 +117,17 @@ export function Kanban() {
           </div>
         </div>
 
-        {/* Kanban Board */}
+        {/* Filtering and Sorting Toolbar */}
+        {viewMode === 'BOARD_VIEW' && <FilteringSortingToolbar />}
+
+        {/* Content: Kanban Board or Search Results */}
         {isLoadingEmails ? (
           <div className="flex items-center justify-center h-[500px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : viewMode === 'SEARCH_VIEW' ? (
+          <div className="mt-6">
+            <SearchResults onEmailClick={setSelectedEmailId} />
           </div>
         ) : (
           <KanbanBoard emails={emails} mailboxId={selectedMailboxId} />

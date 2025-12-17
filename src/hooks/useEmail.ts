@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { emailApi, type EmailQueryParams, type UpdateEmailData } from '@/services/emailApi';
+import { emailApi, type EmailQueryParams, type UpdateEmailData, type FuzzySearchParams } from '@/services/emailApi';
 
 export const useMailboxes = () => {
   const query = useQuery({
@@ -131,3 +131,12 @@ export const useEmailMutations = () => {
   };
 };
 
+export const useEmailSearch = (params: FuzzySearchParams, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['emailSearch', params],
+    queryFn: () => emailApi.fuzzySearch(params),
+    enabled: enabled && !!params.q, // Only search if enabled and query exists
+    placeholderData: (previousData) => previousData,
+    staleTime: 30 * 1000, // Cache for 30 seconds
+  });
+};
