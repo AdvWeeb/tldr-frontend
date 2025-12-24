@@ -149,13 +149,68 @@ export interface FuzzySearchResult extends Email {
 export interface FuzzySearchResponse {
   data: FuzzySearchResult[];
   meta: {
-    itemsPerPage: number;
-    totalItems: number;
-    currentPage: number;
+    totalResults: number;
+    page: number;
+    limit: number;
     totalPages: number;
     query: string;
     threshold: number;
   };
+}
+
+export interface SemanticSearchParams {
+  q?: string;
+  minSimilarity?: number;
+  mailboxId?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface SemanticSearchResult extends Email {
+  similarity: number;
+}
+
+export interface SemanticSearchResponse {
+  data: SemanticSearchResult[];
+  meta: {
+    query: string;
+    minSimilarity: number;
+    totalResults: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface SearchSuggestionsResponse {
+  contacts: string[];
+  keywords: string[];
+  recentSearches: string[];
+}
+
+export interface KanbanColumn {
+  id: number;
+  title: string;
+  orderIndex: number;
+  gmailLabelId: string | null;
+  color: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateColumnData {
+  title: string;
+  gmailLabelId?: string | null;
+  color?: string;
+  orderIndex?: number;
+}
+
+export interface UpdateColumnData {
+  title?: string;
+  gmailLabelId?: string | null;
+  color?: string;
+  orderIndex?: number;
 }
 
 export const emailApi = {
@@ -217,6 +272,44 @@ export const emailApi = {
   fuzzySearch: async (params: FuzzySearchParams = {}): Promise<FuzzySearchResponse> => {
     const response = await apiClient.get<FuzzySearchResponse>('/emails/search/fuzzy', { params });
     return response.data;
+  },
+
+  semanticSearch: async (params: SemanticSearchParams = {}): Promise<SemanticSearchResponse> => {
+    const response = await apiClient.get<SemanticSearchResponse>('/emails/search/semantic', { params });
+    return response.data;
+  },
+
+  getSearchSuggestions: async (q: string): Promise<SearchSuggestionsResponse> => {
+    const response = await apiClient.get<SearchSuggestionsResponse>('/emails/search/suggestions', { params: { q } });
+    return response.data;
+  },
+
+  // Kanban operations
+  getKanbanColumns: async (): Promise<KanbanColumn[]> => {
+    const response = await apiClient.get<KanbanColumn[]>('/kanban/columns');
+    return response.data;
+  },
+
+  createKanbanColumn: async (data: CreateColumnData): Promise<KanbanColumn> => {
+    const response = await apiClient.post<KanbanColumn>('/kanban/columns', data);
+    return response.data;
+  },
+
+  updateKanbanColumn: async (id: number, data: UpdateColumnData): Promise<KanbanColumn> => {
+    const response = await apiClient.patch<KanbanColumn>(`/kanban/columns/${id}`, data);
+    return response.data;
+  },
+
+  deleteKanbanColumn: async (id: number): Promise<void> => {
+    await apiClient.delete(`/kanban/columns/${id}`);
+  },
+
+  initializeDefaultColumns: async (): Promise<void> => {
+    await apiClient.post('/kanban/columns/initialize');
+  },
+
+  moveEmailToColumn: async (emailId: number, columnId: number, archiveFromInbox: boolean = false): Promise<void> => {
+    await apiClient.post(`/emails/${emailId}/move-to-column`, { columnId, archiveFromInbox });
   },
 
   // Attachment operations

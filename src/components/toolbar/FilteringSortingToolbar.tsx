@@ -20,6 +20,7 @@ export function FilteringSortingToolbar() {
     setSorting,
     filters,
     setFilters,
+    updateFilters,
     clearFilters,
     hasActiveFilters,
   } = useUIStore();
@@ -42,7 +43,7 @@ export function FilteringSortingToolbar() {
       // Remove filter if clicking the same value
       const newFilters = { ...filters };
       delete newFilters[key];
-      setFilters(newFilters);
+      updateFilters(newFilters);
     } else {
       setFilters({ [key]: value });
     }

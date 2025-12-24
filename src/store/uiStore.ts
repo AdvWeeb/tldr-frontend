@@ -28,6 +28,7 @@ interface UIState {
   // Filters
   filters: EmailFilters;
   setFilters: (filters: Partial<EmailFilters>) => void;
+  updateFilters: (filters: EmailFilters) => void;
   clearFilters: () => void;
   hasActiveFilters: () => boolean;
 
@@ -73,6 +74,9 @@ export const useUIStore = create<UIState>((set, get) => ({
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
     }));
+  },
+  updateFilters: (newFilters) => {
+    set({ filters: newFilters });
   },
   clearFilters: () => set({ filters: {} }),
   hasActiveFilters: () => {

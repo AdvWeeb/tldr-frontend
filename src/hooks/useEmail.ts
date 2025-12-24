@@ -119,6 +119,14 @@ export const useEmailMutations = () => {
     },
   });
 
+  const moveEmailToColumn = useMutation({
+    mutationFn: ({ emailId, columnId, archiveFromInbox }: { emailId: number; columnId: number; archiveFromInbox?: boolean }) =>
+      emailApi.moveEmailToColumn(emailId, columnId, archiveFromInbox),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
+    },
+  });
+
   return {
     updateEmail,
     toggleStar,
@@ -128,6 +136,55 @@ export const useEmailMutations = () => {
     connectMailbox,
     sendEmail,
     summarizeEmail,
+    moveEmailToColumn,
+  };
+};
+
+export const useKanbanColumns = () => {
+  return useQuery({
+    queryKey: ['kanbanColumns'],
+    queryFn: emailApi.getKanbanColumns,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useKanbanMutations = () => {
+  const queryClient = useQueryClient();
+
+  const createColumn = useMutation({
+    mutationFn: emailApi.createKanbanColumn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanbanColumns'] });
+    },
+  });
+
+  const updateColumn = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      emailApi.updateKanbanColumn(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanbanColumns'] });
+    },
+  });
+
+  const deleteColumn = useMutation({
+    mutationFn: (id: number) => emailApi.deleteKanbanColumn(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanbanColumns'] });
+    },
+  });
+
+  const initializeColumns = useMutation({
+    mutationFn: emailApi.initializeDefaultColumns,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanbanColumns'] });
+    },
+  });
+
+  return {
+    createColumn,
+    updateColumn,
+    deleteColumn,
+    initializeColumns,
   };
 };
 
@@ -138,5 +195,24 @@ export const useEmailSearch = (params: FuzzySearchParams, enabled: boolean = tru
     enabled: enabled && !!params.q, // Only search if enabled and query exists
     placeholderData: (previousData) => previousData,
     staleTime: 30 * 1000, // Cache for 30 seconds
+  });
+};
+
+export const useSemanticSearch = (params: any, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['semanticSearch', params],
+    queryFn: () => emailApi.semanticSearch(params),
+    enabled: enabled && !!params.q,
+    placeholderData: (previousData) => previousData,
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useSearchSuggestions = (q: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['searchSuggestions', q],
+    queryFn: () => emailApi.getSearchSuggestions(q),
+    enabled: enabled && q.length >= 2, // Only fetch if query is at least 2 chars
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 };

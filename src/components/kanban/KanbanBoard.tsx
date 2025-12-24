@@ -2,40 +2,32 @@ import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { KanbanColumn } from './KanbanColumn';
-import { useEmailMutations } from '@/hooks/useEmail';
+import { useEmailMutations, useKanbanColumns } from '@/hooks/useEmail';
 import { toast } from 'sonner';
+import { Settings, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { KanbanSettingsModal } from './KanbanSettingsModal';
 
 interface KanbanBoardProps {
   emails: any[];
   mailboxId: number | null;
 }
 
-// Kanban columns configuration
-const COLUMNS = [
-  { id: 'inbox', title: 'Inbox', taskStatus: 'none' },
-  { id: 'todo', title: 'To Do', taskStatus: 'todo' },
-  { id: 'in_progress', title: 'In Progress', taskStatus: 'in_progress' },
-  { id: 'done', title: 'Done', taskStatus: 'done' },
-];
-
 export function KanbanBoard({ emails, mailboxId }: KanbanBoardProps) {
-  const [columns, setColumns] = useState<Record<string, any[]>>({
-    inbox: [],
-    todo: [],
-    in_progress: [],
-    done: [],
-  });
+  const { data: dbColumns = [], isLoading: isLoadingColumns } = useKanbanColumns();
+  const [columns, setColumns] = useState<Record<string, any[]>>({});
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { updateEmail } = useEmailMutations();
+  const { updateEmail, moveEmailToColumn } = useEmailMutations();
 
-  // Organize emails into columns based on taskStatus
+  // Organize emails into columns based on database configuration
   useEffect(() => {
-    const organized: Record<string, any[]> = {
-      inbox: [],
-      todo: [],
-      in_progress: [],
-      done: [],
-    };
+    if (dbColumns.length === 0) return;
+
+    const organized: Record<string, any[]> = {};
+    dbColumns.forEach(col => {
+      organized[col.id.toString()] = [];
+    });
 
     emails.forEach((email) => {
       // Filter out snoozed emails
@@ -43,35 +35,40 @@ export function KanbanBoard({ emails, mailboxId }: KanbanBoardProps) {
         return;
       }
 
-      switch (email.taskStatus) {
-        case 'todo':
-          organized.todo.push(email);
-          break;
-        case 'in_progress':
-          organized.in_progress.push(email);
-          break;
-        case 'done':
-          organized.done.push(email);
-          break;
-        case 'none':
-        default:
-          organized.inbox.push(email);
-          break;
+      // Find column by matching Gmail labels or taskStatus
+      let targetColumn = dbColumns.find(col => 
+        col.gmailLabelId && email.labels?.includes(col.gmailLabelId)
+      );
+
+      if (!targetColumn) {
+        // Fallback to taskStatus mapping for default flow
+        if (email.taskStatus === 'todo') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'todo' || c.title.toLowerCase() === 'important');
+        } else if (email.taskStatus === 'in_progress') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'in progress');
+        } else if (email.taskStatus === 'done') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'done');
+        }
+      }
+      
+      // Fallback to "Inbox" or the first column
+      const targetId = targetColumn?.id.toString() || 
+                      dbColumns.find(c => c.title.toLowerCase() === 'inbox')?.id.toString() || 
+                      dbColumns[0]?.id.toString();
+
+      if (targetId && organized[targetId]) {
+        organized[targetId].push(email);
       }
     });
 
     setColumns(organized);
-  }, [emails]);
+  }, [emails, dbColumns]);
 
   const handleDragEnd = (result: DropResult) => {
     const { source, destination, draggableId } = result;
 
-    // Dropped outside the list
-    if (!destination) {
-      return;
-    }
+    if (!destination) return;
 
-    // Dropped in the same position
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -82,12 +79,12 @@ export function KanbanBoard({ emails, mailboxId }: KanbanBoardProps) {
     const sourceColumn = columns[source.droppableId];
     const destColumn = columns[destination.droppableId];
     const emailId = parseInt(draggableId);
+    const columnId = parseInt(destination.droppableId);
 
-    // Find the email being moved
     const movedEmail = sourceColumn.find((email) => email.id === emailId);
     if (!movedEmail) return;
 
-    // Update columns optimistically
+    // Update UI optimistically
     const newSourceColumn = Array.from(sourceColumn);
     newSourceColumn.splice(source.index, 1);
 
@@ -100,50 +97,79 @@ export function KanbanBoard({ emails, mailboxId }: KanbanBoardProps) {
       [destination.droppableId]: newDestColumn,
     });
 
-    // Determine new taskStatus based on destination column
-    const columnConfig = COLUMNS.find((col) => col.id === destination.droppableId);
-    const newTaskStatus = columnConfig?.taskStatus || 'none';
+    // Sync with backend and Gmail
+    const destColConfig = dbColumns.find(c => c.id === columnId);
+    const newTaskStatus = destColConfig?.title.toLowerCase() === 'todo' ? 'todo' : 
+                         destColConfig?.title.toLowerCase() === 'in progress' ? 'in_progress' :
+                         destColConfig?.title.toLowerCase() === 'done' ? 'done' : 'none';
 
-    // Update email on backend
-    updateEmail.mutate(
-      {
-        id: emailId,
-        data: { taskStatus: newTaskStatus as any },
+    // Call moveEmailToColumn to sync Gmail labels
+    moveEmailToColumn.mutate({
+      emailId,
+      columnId,
+      archiveFromInbox: destination.droppableId !== source.droppableId && source.droppableId === dbColumns.find(c => c.title.toLowerCase() === 'inbox')?.id.toString()
+    }, {
+      onSuccess: () => {
+        // Also update task status for UI consistency
+        updateEmail.mutate({ id: emailId, data: { taskStatus: newTaskStatus as any } });
+        toast.success(`Moved to ${destColConfig?.title}`);
       },
-      {
-        onError: (error) => {
-          // Revert on error
-          setColumns({
-            ...columns,
-            [source.droppableId]: sourceColumn,
-            [destination.droppableId]: destColumn,
-          });
-          toast.error('Failed to update email status');
-          console.error('Update error:', error);
-        },
-        onSuccess: () => {
-          toast.success('Email status updated');
-        },
+      onError: (error) => {
+        setColumns({
+          ...columns,
+          [source.droppableId]: sourceColumn,
+          [destination.droppableId]: destColumn,
+        });
+        toast.error('Failed to move email');
+        console.error('Move error:', error);
       }
-    );
+    });
   };
 
-  return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {COLUMNS.map((column) => (
-          <Droppable key={column.id} droppableId={column.id}>
-            {(provided, snapshot) => (
-              <KanbanColumn
-                title={column.title}
-                emails={columns[column.id]}
-                provided={provided}
-                isDraggingOver={snapshot.isDraggingOver}
-              />
-            )}
-          </Droppable>
-        ))}
+  if (isLoadingColumns) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    </DragDropContext>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <Settings className="h-4 w-4" />
+          Board Settings
+        </Button>
+      </div>
+
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
+          {dbColumns.map((column) => (
+            <Droppable key={column.id} droppableId={column.id.toString()}>
+              {(provided, snapshot) => (
+                <KanbanColumn
+                  title={column.title}
+                  emails={columns[column.id.toString()] || []}
+                  provided={provided}
+                  isDraggingOver={snapshot.isDraggingOver}
+                  color={column.color}
+                />
+              )}
+            </Droppable>
+          ))}
+        </div>
+      </DragDropContext>
+
+      <KanbanSettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
+    </div>
   );
 }

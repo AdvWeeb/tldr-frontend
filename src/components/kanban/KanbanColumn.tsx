@@ -7,6 +7,7 @@ interface KanbanColumnProps {
   emails: any[];
   provided: DroppableProvided;
   isDraggingOver: boolean;
+  color?: string;
 }
 
 export function KanbanColumn({
@@ -14,11 +15,15 @@ export function KanbanColumn({
   emails,
   provided,
   isDraggingOver,
+  color = '#6B7280',
 }: KanbanColumnProps) {
   return (
-    <div className="flex flex-col h-[calc(100vh-250px)] bg-muted/30 rounded-lg">
+    <div className="flex flex-col h-[calc(100vh-250px)] bg-muted/30 rounded-lg min-w-[280px]">
       {/* Column Header */}
-      <div className="p-4 border-b bg-card rounded-t-lg">
+      <div 
+        className="p-4 border-b bg-card rounded-t-lg border-t-4"
+        style={{ borderTopColor: color }}
+      >
         <h3 className="font-semibold text-lg">{title}</h3>
         <p className="text-sm text-muted-foreground">{emails.length} emails</p>
       </div>

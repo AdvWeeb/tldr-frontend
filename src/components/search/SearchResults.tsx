@@ -1,10 +1,12 @@
-import { Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, AlertCircle, Loader2, BrainCircuit, Search as SearchIcon } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
-import { useEmailSearch } from '@/hooks/useEmail';
+import { useEmailSearch, useSemanticSearch } from '@/hooks/useEmail';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface SearchResultsProps {
   onEmailClick: (emailId: number) => void;
@@ -12,13 +14,23 @@ interface SearchResultsProps {
 
 export function SearchResults({ onEmailClick }: SearchResultsProps) {
   const { searchQuery, clearSearch, selectedMailboxId } = useUIStore();
+  const [searchMode, setSearchMode] = useState<'semantic' | 'fuzzy'>('semantic');
 
-  const { data, isLoading, error, isError } = useEmailSearch({
+  const fuzzySearch = useEmailSearch({
     q: searchQuery,
     mailboxId: selectedMailboxId || undefined,
     threshold: 0.2,
     fields: 'all',
-  });
+  }, searchMode === 'fuzzy');
+
+  const semanticSearch = useSemanticSearch({
+    q: searchQuery,
+    mailboxId: selectedMailboxId || undefined,
+    minSimilarity: 0.3,
+  }, searchMode === 'semantic');
+
+  const activeSearch = searchMode === 'semantic' ? semanticSearch : fuzzySearch;
+  const { data, isLoading, error, isError } = activeSearch;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -87,13 +99,35 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
   return (
     <div className="space-y-4">
       {/* Search Results Header */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold">Search Results</h2>
           <p className="text-sm text-muted-foreground">
-            Found {data.meta.totalItems} {data.meta.totalItems === 1 ? 'email' : 'emails'} matching "{searchQuery}"
+            Found {data.meta.totalResults} {data.meta.totalResults === 1 ? 'email' : 'emails'} matching "{searchQuery}"
           </p>
         </div>
+        
+        <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
+          <Button 
+            variant={searchMode === 'semantic' ? 'secondary' : 'ghost'} 
+            size="sm" 
+            onClick={() => setSearchMode('semantic')}
+            className={cn("gap-2", searchMode === 'semantic' && "bg-white shadow-sm")}
+          >
+            <BrainCircuit className="h-4 w-4 text-purple-600" />
+            AI Semantic
+          </Button>
+          <Button 
+            variant={searchMode === 'fuzzy' ? 'secondary' : 'ghost'} 
+            size="sm" 
+            onClick={() => setSearchMode('fuzzy')}
+            className={cn("gap-2", searchMode === 'fuzzy' && "bg-white shadow-sm")}
+          >
+            <SearchIcon className="h-4 w-4" />
+            Fuzzy
+          </Button>
+        </div>
+
         <Button variant="ghost" onClick={clearSearch}>
           Back to Board
         </Button>
@@ -101,7 +135,7 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
 
       {/* Results List */}
       <div className="space-y-2">
-        {data.data.map((email) => (
+        {data.data.map((email: any) => (
           <Card
             key={email.id}
             className="p-4 cursor-pointer hover:bg-accent transition-colors"
@@ -143,8 +177,14 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
                 {/* Badges Row */}
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Relevance Score */}
-                  <Badge variant="outline" className="text-xs">
-                    {Math.round(email.relevance * 100)}% match
+                  <Badge variant="outline" className={cn(
+                    "text-xs",
+                    searchMode === 'semantic' ? "border-purple-200 bg-purple-50 text-purple-700" : "border-blue-200 bg-blue-50 text-blue-700"
+                  )}>
+                    {searchMode === 'semantic' 
+                      ? `${Math.round((email.similarity || 0) * 100)}% relevance` 
+                      : `${Math.round((email.relevance || 0) * 100)}% match`
+                    }
                   </Badge>
 
                   {/* Category */}
