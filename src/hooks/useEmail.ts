@@ -27,6 +27,15 @@ export const useMailboxStats = (mailboxId: number | null) => {
   });
 };
 
+export const useMailboxLabels = (mailboxId: number | null) => {
+  return useQuery({
+    queryKey: ['mailboxLabels', mailboxId],
+    queryFn: () => emailApi.getMailboxLabels(mailboxId!),
+    enabled: !!mailboxId,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+};
+
 export const useEmails = (params: EmailQueryParams = {}) => {
   return useQuery({
     queryKey: ['emails', params],

@@ -10,11 +10,12 @@ import {
   Trash2,
   ChevronDown,
   Edit,
+  Tag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ComposeEmailModal } from './ComposeEmailModal';
-import { useMailboxStats } from '@/hooks/useEmail';
+import { useMailboxStats, useMailboxLabels } from '@/hooks/useEmail';
 
 interface MailboxListProps {
   mailboxes: any[]; // Backend mailbox type
@@ -24,6 +25,17 @@ interface MailboxListProps {
   selectedFolder?: string;
   onSelectFolder?: (folderId: string) => void;
 }
+
+// Map folder IDs to Gmail labels for filtering
+export const FOLDER_TO_LABEL_MAP: Record<string, string | null> = {
+  inbox: 'INBOX',
+  favorites: 'STARRED',
+  drafts: 'DRAFT',
+  sent: 'SENT',
+  archive: null, // Special case: emails without INBOX label
+  spam: 'SPAM',
+  bin: 'TRASH',
+};
 
 export function MailboxList({ 
   mailboxes, 
@@ -35,22 +47,25 @@ export function MailboxList({
 }: Readonly<MailboxListProps>) {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
+  const [isLabelsOpen, setIsLabelsOpen] = useState(true);
 
   const { data: stats } = useMailboxStats(selectedMailboxId);
+  const { data: labels } = useMailboxLabels(selectedMailboxId);
 
   // Mail folders with their counts
   const folders = [
     { id: 'inbox', name: 'Inbox', icon: Inbox, count: stats?.inbox?.unread ?? 0, section: 'core' },
-    { id: 'favorites', name: 'Favorites', icon: Star, count: stats?.starred?.unread ?? 0, section: 'core' },
+    { id: 'favorites', name: 'Starred', icon: Star, count: stats?.starred?.total ?? 0, section: 'core' },
     { id: 'drafts', name: 'Drafts', icon: FileText, count: stats?.drafts?.total ?? 0, section: 'core' },
     { id: 'sent', name: 'Sent', icon: Send, count: stats?.sent?.total ?? 0, section: 'core' },
     { id: 'archive', name: 'Archive', icon: Archive, count: 0, section: 'management' },
-    { id: 'spam', name: 'Spam', icon: AlertCircle, count: stats?.spam?.unread ?? 0, section: 'management' },
-    { id: 'bin', name: 'Bin', icon: Trash2, count: stats?.trash?.total ?? 0, section: 'management' },
+    { id: 'spam', name: 'Spam', icon: AlertCircle, count: stats?.spam?.total ?? 0, section: 'management' },
+    { id: 'bin', name: 'Trash', icon: Trash2, count: stats?.trash?.total ?? 0, section: 'management' },
   ];
 
   const corefolders = folders.filter(f => f.section === 'core');
   const managementFolders = folders.filter(f => f.section === 'management');
+  const userLabels = labels?.user ?? [];
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -148,6 +163,54 @@ export function MailboxList({
               );
             })}
           </nav>
+        )}
+
+        {/* User Labels Section */}
+        {userLabels.length > 0 && (
+          <>
+            <div className="mt-4 px-3">
+              <Button
+                variant="ghost"
+                onClick={() => setIsLabelsOpen(!isLabelsOpen)}
+                className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-2 h-auto hover:text-foreground"
+              >
+                <span>Labels</span>
+                <ChevronDown className={cn("h-3 w-3 transition-transform", isLabelsOpen && "rotate-180")} />
+              </Button>
+            </div>
+
+            {isLabelsOpen && (
+              <nav className="space-y-0.5 px-2">
+                {userLabels.map((label) => {
+                  const isActive = selectedFolder === `label:${label.id}`;
+                  return (
+                    <Button
+                      key={label.id}
+                      variant="ghost"
+                      onClick={() => onSelectFolder(`label:${label.id}`)}
+                      className={cn(
+                        "w-full justify-between h-auto py-2 px-3 font-normal",
+                        isActive && "bg-blue-100 text-blue-900 hover:bg-blue-100"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Tag 
+                          className="h-4 w-4" 
+                          style={{ 
+                            color: label.backgroundColor || undefined,
+                          }}
+                        />
+                        <span className="truncate">{label.name}</span>
+                      </div>
+                      {(label.messagesUnread ?? 0) > 0 && (
+                        <span className="text-xs text-muted-foreground">{label.messagesUnread}</span>
+                      )}
+                    </Button>
+                  );
+                })}
+              </nav>
+            )}
+          </>
         )}
 
         {/* Mailbox Switcher (if multiple mailboxes) */}

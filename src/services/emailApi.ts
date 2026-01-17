@@ -101,6 +101,7 @@ export interface EmailQueryParams {
   taskStatus?: string;
   fromEmail?: string;
   label?: string;
+  excludeLabel?: string;
   sortBy?: 'receivedAt' | 'subject' | 'fromEmail';
   sortOrder?: 'ASC' | 'DESC';
 }
@@ -227,6 +228,21 @@ export interface UpdateColumnData {
   orderIndex?: number;
 }
 
+export interface GmailLabel {
+  id: string;
+  name: string;
+  type: 'system' | 'user';
+  messagesTotal?: number;
+  messagesUnread?: number;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
+export interface GmailLabelsResponse {
+  system: GmailLabel[];
+  user: GmailLabel[];
+}
+
 export const emailApi = {
   // Mailbox operations
   getMailboxes: async (): Promise<Mailbox[]> => {
@@ -250,6 +266,11 @@ export const emailApi = {
 
   getMailboxStats: async (mailboxId: number): Promise<MailboxStats> => {
     const response = await apiClient.get<MailboxStats>(`/mailboxes/${mailboxId}/stats`);
+    return response.data;
+  },
+
+  getMailboxLabels: async (mailboxId: number): Promise<GmailLabelsResponse> => {
+    const response = await apiClient.get<GmailLabelsResponse>(`/mailboxes/${mailboxId}/labels`);
     return response.data;
   },
 

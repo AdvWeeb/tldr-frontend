@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Navigation } from '@/components/Navigation';
-import { MailboxList } from '@/components/dashboard/MailboxList';
+import { MailboxList, FOLDER_TO_LABEL_MAP } from '@/components/dashboard/MailboxList';
 import { EmailList } from '@/components/dashboard/EmailList';
 import { EmailDetail } from '@/components/dashboard/EmailDetail';
 import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
@@ -67,9 +67,20 @@ export function Inbox() {
       ...filters, // Include filters from UI store
     };
 
+    // Handle user labels (format: "label:LABEL_ID")
+    if (selectedFolder.startsWith('label:')) {
+      const labelId = selectedFolder.replace('label:', '');
+      params.label = labelId;
+      return params;
+    }
+
+    // Handle core folders
     switch (selectedFolder) {
       case 'favorites':
         params.isStarred = true;
+        break;
+      case 'inbox':
+        params.label = 'INBOX';
         break;
       case 'drafts':
         params.label = 'DRAFT';
@@ -77,18 +88,22 @@ export function Inbox() {
       case 'sent':
         params.label = 'SENT';
         break;
-      case 'archive':
-        params.label = 'ARCHIVE';
-        break;
       case 'spam':
         params.label = 'SPAM';
         break;
       case 'bin':
         params.label = 'TRASH';
         break;
-      case 'inbox':
+      case 'archive':
+        // Archive = emails without INBOX label (handled by backend with special logic)
+        params.excludeLabel = 'INBOX';
+        break;
       default:
-        // Inbox shows all emails without specific label filters
+        // Check if it's in the folder map
+        const gmailLabel = FOLDER_TO_LABEL_MAP[selectedFolder];
+        if (gmailLabel) {
+          params.label = gmailLabel;
+        }
         break;
     }
 
