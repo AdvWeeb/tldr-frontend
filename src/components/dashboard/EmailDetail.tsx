@@ -13,7 +13,8 @@ import {
   CornerUpLeft,
   Download,
   Mail,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from 'lucide-react';
 import { ComposeEmailModal } from './ComposeEmailModal';
 import apiClient from '@/services/apiClient';
@@ -45,6 +46,13 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   const handleMarkAsUnread = () => {
     if (email) {
       markAsRead.mutate({ id: email.id, isRead: false });
+    }
+  };
+
+  const handleOpenInGmail = () => {
+    if (email?.gmailMessageId) {
+      const gmailUrl = `https://mail.google.com/mail/u/0/#inbox/${email.gmailMessageId}`;
+      window.open(gmailUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -155,6 +163,14 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
               disabled={deleteEmail.isPending}
             >
                 <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              title="Open in Gmail"
+              onClick={handleOpenInGmail}
+            >
+                <ExternalLink className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon">
                 <MoreVertical className="h-4 w-4" />
