@@ -18,6 +18,15 @@ export const useMailboxes = () => {
   return query; // This includes data, isLoading, refetch, etc.
 };
 
+export const useMailboxStats = (mailboxId: number | null) => {
+  return useQuery({
+    queryKey: ['mailboxStats', mailboxId],
+    queryFn: () => emailApi.getMailboxStats(mailboxId!),
+    enabled: !!mailboxId,
+    staleTime: 30 * 1000, // Cache for 30 seconds
+  });
+};
+
 export const useEmails = (params: EmailQueryParams = {}) => {
   return useQuery({
     queryKey: ['emails', params],
@@ -46,6 +55,7 @@ export const useEmailMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['email'] });
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] });
+      queryClient.invalidateQueries({ queryKey: ['mailboxStats'] });
     },
   });
 
@@ -55,6 +65,7 @@ export const useEmailMutations = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['email'] });
+      queryClient.invalidateQueries({ queryKey: ['mailboxStats'] });
     },
   });
 
@@ -65,6 +76,7 @@ export const useEmailMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['email'] });
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] }); // Unread count might change
+      queryClient.invalidateQueries({ queryKey: ['mailboxStats'] });
     },
   });
 
@@ -74,6 +86,7 @@ export const useEmailMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['email'] });
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] });
+      queryClient.invalidateQueries({ queryKey: ['mailboxStats'] });
     },
   });
 

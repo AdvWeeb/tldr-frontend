@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ComposeEmailModal } from './ComposeEmailModal';
+import { useMailboxStats } from '@/hooks/useEmail';
 
 interface MailboxListProps {
   mailboxes: any[]; // Backend mailbox type
@@ -35,15 +36,17 @@ export function MailboxList({
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
 
-  // Mail folders with their counts (would come from backend in real app)
+  const { data: stats } = useMailboxStats(selectedMailboxId);
+
+  // Mail folders with their counts
   const folders = [
-    { id: 'inbox', name: 'Inbox', icon: Inbox, count: currentMailbox?.totalEmails || 0, section: 'core' },
-    { id: 'favorites', name: 'Favorites', icon: Star, count: 0, section: 'core' },
-    { id: 'drafts', name: 'Drafts', icon: FileText, count: 0, section: 'core' },
-    { id: 'sent', name: 'Sent', icon: Send, count: 0, section: 'core' },
+    { id: 'inbox', name: 'Inbox', icon: Inbox, count: stats?.inbox?.unread ?? 0, section: 'core' },
+    { id: 'favorites', name: 'Favorites', icon: Star, count: stats?.starred?.unread ?? 0, section: 'core' },
+    { id: 'drafts', name: 'Drafts', icon: FileText, count: stats?.drafts?.total ?? 0, section: 'core' },
+    { id: 'sent', name: 'Sent', icon: Send, count: stats?.sent?.total ?? 0, section: 'core' },
     { id: 'archive', name: 'Archive', icon: Archive, count: 0, section: 'management' },
-    { id: 'spam', name: 'Spam', icon: AlertCircle, count: 0, section: 'management' },
-    { id: 'bin', name: 'Bin', icon: Trash2, count: 0, section: 'management' },
+    { id: 'spam', name: 'Spam', icon: AlertCircle, count: stats?.spam?.unread ?? 0, section: 'management' },
+    { id: 'bin', name: 'Bin', icon: Trash2, count: stats?.trash?.total ?? 0, section: 'management' },
   ];
 
   const corefolders = folders.filter(f => f.section === 'core');

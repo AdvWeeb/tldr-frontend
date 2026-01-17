@@ -5,15 +5,15 @@ import { FilteringSortingToolbar } from '@/components/toolbar/FilteringSortingTo
 import { SearchResults } from '@/components/search/SearchResults';
 import { useMailboxes, useEmails, useEmailMutations } from '@/hooks/useEmail';
 import { useUIStore } from '@/store/uiStore';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-const TOP_EMAILS_TO_SUMMARIZE = 5; // Summarize top 5 emails automatically
+const MIN_SUMMARIZED_EMAILS = 5; // Minimum number of emails that should have summaries
 
 export function Kanban() {
   const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null);
   const [, setSelectedEmailId] = useState<number | null>(null);
-  const [hasSummarized, setHasSummarized] = useState(false);
   const [summarizingCount, setSummarizingCount] = useState(0);
 
   // UI state for view mode and filters
@@ -45,37 +45,72 @@ export function Kanban() {
   const emails = emailData?.data || [];
   const currentMailbox = mailboxes.find(m => m.id === selectedMailboxId);
 
-  // Auto-summarize top emails when entering Kanban view
-  useEffect(() => {
-    if (!hasSummarized && emails.length > 0 && !isLoadingEmails) {
-      const emailsWithoutSummary = emails
-        .filter(email => !email.aiSummary && !email.snoozedUntil)
-        .slice(0, TOP_EMAILS_TO_SUMMARIZE);
+  // Count emails that already have summaries
+  const summarizedCount = emails.filter(email => email.aiSummary).length;
+  const emailsWithoutSummary = emails.filter(email => !email.aiSummary && !email.snoozedUntil);
 
-      if (emailsWithoutSummary.length > 0) {
-        setHasSummarized(true);
-        setSummarizingCount(emailsWithoutSummary.length);
-        
-        toast.info(`Generating AI summaries for ${emailsWithoutSummary.length} emails...`);
-
-        // Summarize emails one by one to avoid overwhelming the API
-        emailsWithoutSummary.forEach((email, index) => {
-          setTimeout(() => {
-            summarizeEmail.mutate(email.id, {
-              onSuccess: () => {
-                console.log(`Summary generated for email ${email.id}`);
-                setSummarizingCount(prev => Math.max(0, prev - 1));
-              },
-              onError: (error) => {
-                console.error(`Failed to summarize email ${email.id}:`, error);
-                setSummarizingCount(prev => Math.max(0, prev - 1));
-              },
-            });
-          }, index * 1000); // Stagger by 1 second each
-        });
-      }
+  // Function to summarize more emails (called by button)
+  const handleLoadMoreSummaries = () => {
+    const toSummarize = emailsWithoutSummary.slice(0, MIN_SUMMARIZED_EMAILS);
+    
+    if (toSummarize.length === 0) {
+      toast.info('All emails already have summaries!');
+      return;
     }
-  }, [emails, hasSummarized, isLoadingEmails, summarizeEmail]);
+
+    setSummarizingCount(toSummarize.length);
+    toast.info(`Generating AI summaries for ${toSummarize.length} emails...`);
+
+    // Summarize emails one by one to avoid overwhelming the API
+    toSummarize.forEach((email, index) => {
+      setTimeout(() => {
+        summarizeEmail.mutate(email.id, {
+          onSuccess: () => {
+            console.log(`Summary generated for email ${email.id}`);
+            setSummarizingCount(prev => Math.max(0, prev - 1));
+          },
+          onError: (error) => {
+            console.error(`Failed to summarize email ${email.id}:`, error);
+            setSummarizingCount(prev => Math.max(0, prev - 1));
+          },
+        });
+      }, index * 1000); // Stagger by 1 second each
+    });
+  };
+
+  // Auto-summarize ONLY if we have less than MIN_SUMMARIZED_EMAILS with summaries
+  // This runs once when emails load, not on every refresh if we already have enough
+  const [hasAutoSummarized, setHasAutoSummarized] = useState(false);
+  
+  useEffect(() => {
+    if (!hasAutoSummarized && emails.length > 0 && !isLoadingEmails) {
+      // Only auto-summarize if we have fewer than MIN_SUMMARIZED_EMAILS with summaries
+      if (summarizedCount < MIN_SUMMARIZED_EMAILS) {
+        const needed = MIN_SUMMARIZED_EMAILS - summarizedCount;
+        const toSummarize = emailsWithoutSummary.slice(0, needed);
+        
+        if (toSummarize.length > 0) {
+          setHasAutoSummarized(true);
+          setSummarizingCount(toSummarize.length);
+          toast.info(`Generating AI summaries for ${toSummarize.length} emails...`);
+
+          toSummarize.forEach((email, index) => {
+            setTimeout(() => {
+              summarizeEmail.mutate(email.id, {
+                onSuccess: () => {
+                  setSummarizingCount(prev => Math.max(0, prev - 1));
+                },
+                onError: () => {
+                  setSummarizingCount(prev => Math.max(0, prev - 1));
+                },
+              });
+            }, index * 1000);
+          });
+        }
+      }
+      setHasAutoSummarized(true); // Mark as checked even if no summarization needed
+    }
+  }, [emails.length, hasAutoSummarized, isLoadingEmails, summarizedCount]);
 
   if (isLoadingMailboxes) {
     return (
@@ -106,14 +141,37 @@ export function Kanban() {
                 </p>
               )}
             </div>
-            {summarizingCount > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg">
-                <Sparkles className="h-4 w-4 text-purple-600 animate-pulse" />
-                <span className="text-sm text-purple-900 font-medium">
-                  Generating {summarizingCount} {summarizingCount === 1 ? 'summary' : 'summaries'}...
+            <div className="flex items-center gap-3">
+              {/* Load More Summaries Button */}
+              {emailsWithoutSummary.length > 0 && summarizingCount === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadMoreSummaries}
+                  className="flex items-center gap-2"
+                >
+                  <Wand2 className="h-4 w-4" />
+                  Generate {Math.min(emailsWithoutSummary.length, MIN_SUMMARIZED_EMAILS)} Summaries
+                </Button>
+              )}
+              
+              {/* Summarizing indicator */}
+              {summarizingCount > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg">
+                  <Sparkles className="h-4 w-4 text-purple-600 animate-pulse" />
+                  <span className="text-sm text-purple-900 font-medium">
+                    Generating {summarizingCount} {summarizingCount === 1 ? 'summary' : 'summaries'}...
+                  </span>
+                </div>
+              )}
+              
+              {/* Summary stats */}
+              {!isLoadingEmails && (
+                <span className="text-xs text-muted-foreground">
+                  {summarizedCount}/{emails.length} summarized
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

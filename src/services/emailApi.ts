@@ -13,6 +13,20 @@ export interface Mailbox {
   createdAt: string;
 }
 
+export interface StatItem {
+  total: number;
+  unread: number;
+}
+
+export interface MailboxStats {
+  inbox: StatItem;
+  starred: StatItem;
+  drafts: StatItem;
+  sent: StatItem;
+  spam: StatItem;
+  trash: StatItem;
+}
+
 export interface Email {
   id: number;
   mailboxId: number;
@@ -232,6 +246,11 @@ export const emailApi = {
 
   syncMailbox: async (mailboxId: number): Promise<void> => {
     await apiClient.post(`/mailboxes/${mailboxId}/sync`);
+  },
+
+  getMailboxStats: async (mailboxId: number): Promise<MailboxStats> => {
+    const response = await apiClient.get<MailboxStats>(`/mailboxes/${mailboxId}/stats`);
+    return response.data;
   },
 
   disconnectMailbox: async (mailboxId: number): Promise<void> => {
