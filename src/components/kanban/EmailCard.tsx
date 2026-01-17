@@ -29,7 +29,7 @@ interface EmailCardProps {
 }
 
 export function EmailCard({ email, index }: EmailCardProps) {
-  const { toggleStar, markAsRead, updateEmail } = useEmailMutations();
+  const { toggleStar, updateEmail } = useEmailMutations();
   const navigate = useNavigate();
 
   const handleSnooze = (hours: number, e?: React.MouseEvent) => {

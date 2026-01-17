@@ -225,7 +225,7 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
       {/* Pagination Info */}
       {data.meta.totalPages > 1 && (
         <div className="text-center text-sm text-muted-foreground pt-4">
-          Page {data.meta.currentPage} of {data.meta.totalPages}
+          Page {data.meta.page} of {data.meta.totalPages}
         </div>
       )}
     </div>

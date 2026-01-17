@@ -188,7 +188,7 @@ export function Kanban() {
             <SearchResults onEmailClick={setSelectedEmailId} />
           </div>
         ) : (
-          <KanbanBoard emails={emails} mailboxId={selectedMailboxId} />
+          <KanbanBoard emails={emails} />
         )}
       </div>
     </div>

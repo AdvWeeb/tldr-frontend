@@ -62,7 +62,7 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
         summarizeEmail.mutateAsync(email.id),
         {
           loading: 'Generating AI summary...',
-          success: (data) => `Summary generated successfully!`,
+          success: () => `Summary generated successfully!`,
           error: 'Failed to generate summary',
         }
       );

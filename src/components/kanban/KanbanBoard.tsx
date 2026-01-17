@@ -10,10 +10,9 @@ import { KanbanSettingsModal } from './KanbanSettingsModal';
 
 interface KanbanBoardProps {
   emails: any[];
-  mailboxId: number | null;
 }
 
-export function KanbanBoard({ emails, mailboxId }: KanbanBoardProps) {
+export function KanbanBoard({ emails }: KanbanBoardProps) {
   const { data: dbColumns = [], isLoading: isLoadingColumns } = useKanbanColumns();
   const [columns, setColumns] = useState<Record<string, any[]>>({});
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

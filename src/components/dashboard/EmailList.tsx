@@ -55,11 +55,6 @@ export function EmailList({
     toggleStar.mutate({ id: emailId, isStarred: !isStarred });
   };
 
-  const handleToggleRead = (e: React.MouseEvent, emailId: number, isRead: boolean) => {
-    e.stopPropagation();
-    markAsRead.mutate({ id: emailId, isRead: !isRead });
-  };
-
   const markSelectedAsRead = () => {
     const emailsToMark = selectedEmails.length > 0 ? selectedEmails : (selectedEmailId ? [selectedEmailId] : []);
     emailsToMark.forEach(id => {
