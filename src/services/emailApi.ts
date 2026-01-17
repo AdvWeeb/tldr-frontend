@@ -327,8 +327,8 @@ export const emailApi = {
     await apiClient.post('/kanban/columns/initialize');
   },
 
-  moveEmailToColumn: async (emailId: number, columnId: number, archiveFromInbox: boolean = false): Promise<void> => {
-    await apiClient.post(`/emails/${emailId}/move-to-column`, { columnId, archiveFromInbox });
+  moveEmailToColumn: async (emailId: number, columnId: number, sourceColumnId?: number, archiveFromInbox: boolean = false): Promise<void> => {
+    await apiClient.post(`/emails/${emailId}/move-to-column`, { columnId, sourceColumnId, archiveFromInbox });
   },
 
   // Attachment operations

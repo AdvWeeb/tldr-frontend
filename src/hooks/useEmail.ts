@@ -133,8 +133,8 @@ export const useEmailMutations = () => {
   });
 
   const moveEmailToColumn = useMutation({
-    mutationFn: ({ emailId, columnId, archiveFromInbox }: { emailId: number; columnId: number; archiveFromInbox?: boolean }) =>
-      emailApi.moveEmailToColumn(emailId, columnId, archiveFromInbox),
+    mutationFn: ({ emailId, columnId, sourceColumnId, archiveFromInbox }: { emailId: number; columnId: number; sourceColumnId?: number; archiveFromInbox?: boolean }) =>
+      emailApi.moveEmailToColumn(emailId, columnId, sourceColumnId, archiveFromInbox),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
     },
