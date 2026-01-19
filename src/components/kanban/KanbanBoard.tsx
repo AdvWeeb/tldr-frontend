@@ -36,16 +36,23 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
       
       let targetColumn = null;
 
-      // Match based on taskStatus first (for custom columns)
-      if (email.taskStatus === 'todo' || email.taskStatus === 'to_do') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'to do' || c.title.toLowerCase() === 'todo');
-      } else if (email.taskStatus === 'in_progress') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'in progress');
-      } else if (email.taskStatus === 'done') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'done');
+      // Priority 1: Use columnId if set (most reliable for custom columns)
+      if (email.columnId) {
+        targetColumn = dbColumns.find(c => c.id === email.columnId);
       }
 
-      // If no taskStatus match, check Gmail label-based columns
+      // Priority 2: Match based on taskStatus (for task-based columns)
+      if (!targetColumn) {
+        if (email.taskStatus === 'todo' || email.taskStatus === 'to_do') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'to do' || c.title.toLowerCase() === 'todo');
+        } else if (email.taskStatus === 'in_progress') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'in progress');
+        } else if (email.taskStatus === 'done') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'done');
+        }
+      }
+
+      // Priority 3: Check Gmail label-based columns
       if (!targetColumn) {
         // Ensure labels is an array (handle string from API)
         let emailLabels: string[] = [];
@@ -53,11 +60,6 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
           emailLabels = email.labels;
         } else if (typeof email.labels === 'string' && email.labels) {
           emailLabels = (email.labels as string).split(',').map((l: string) => l.trim());
-        }
-        
-        // Debug log (remove after fixing)
-        if (emailLabels.includes('IMPORTANT')) {
-          console.log(`Email ${email.id} has IMPORTANT label:`, emailLabels);
         }
         
         // Check for Starred column (isStarred flag or STARRED label)
@@ -126,7 +128,7 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
     const sourceColumnId = parseInt(source.droppableId);
     const destColConfig = dbColumns.find(c => c.id === columnId);
     const sourceColConfig = dbColumns.find(c => c.id === sourceColumnId);
-    const newTaskStatus = destColConfig?.title.toLowerCase() === 'todo' ? 'todo' : 
+    const newTaskStatus = destColConfig?.title.toLowerCase() === 'to do' ? 'todo' : 
                          destColConfig?.title.toLowerCase() === 'in progress' ? 'in_progress' :
                          destColConfig?.title.toLowerCase() === 'done' ? 'done' : 'none';
 

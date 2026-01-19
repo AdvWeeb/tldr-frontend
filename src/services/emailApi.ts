@@ -43,9 +43,11 @@ export interface Email {
   category: 'primary' | 'social' | 'promotions' | 'updates' | 'forums';
   taskStatus: 'none' | 'todo' | 'in_progress' | 'done';
   isPinned: boolean;
+  columnId?: number | null;
   isSnoozed: boolean;
   snoozedUntil: string | null;
   aiSummary?: string | null;
+  labels?: string[] | null;
 }
 
 export interface EmailDetail extends Email {
