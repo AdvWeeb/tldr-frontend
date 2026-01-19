@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Edit,
   Tag,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -56,6 +57,7 @@ export function MailboxList({
   const folders = [
     { id: 'inbox', name: 'Inbox', icon: Inbox, count: stats?.inbox?.unread ?? 0, section: 'core' },
     { id: 'favorites', name: 'Starred', icon: Star, count: stats?.starred?.total ?? 0, section: 'core' },
+    { id: 'snoozed', name: 'Snoozed', icon: Clock, count: stats?.snoozed?.total ?? 0, section: 'core' },
     { id: 'drafts', name: 'Drafts', icon: FileText, count: stats?.drafts?.total ?? 0, section: 'core' },
     { id: 'sent', name: 'Sent', icon: Send, count: stats?.sent?.total ?? 0, section: 'core' },
     { id: 'archive', name: 'Archive', icon: Archive, count: 0, section: 'management' },

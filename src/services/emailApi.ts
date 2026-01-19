@@ -104,6 +104,8 @@ export interface EmailQueryParams {
   fromEmail?: string;
   label?: string;
   excludeLabel?: string;
+  isSnoozed?: boolean;
+  includeDeleted?: boolean; // For Trash view
   sortBy?: 'receivedAt' | 'subject' | 'fromEmail';
   sortOrder?: 'ASC' | 'DESC';
 }

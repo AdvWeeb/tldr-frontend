@@ -79,6 +79,9 @@ export function Inbox() {
       case 'favorites':
         params.isStarred = true;
         break;
+      case 'snoozed':
+        params.isSnoozed = true;
+        break;
       case 'inbox':
         params.label = 'INBOX';
         break;
@@ -92,7 +95,7 @@ export function Inbox() {
         params.label = 'SPAM';
         break;
       case 'bin':
-        params.label = 'TRASH';
+        params.includeDeleted = true;
         break;
       case 'archive':
         // Archive = emails without INBOX label (handled by backend with special logic)
@@ -272,14 +275,7 @@ export function Inbox() {
       ) : mailboxes.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-md text-center space-y-4">
-            <div className="text-6xl">⚠️</div>
-            <h2 className="text-2xl font-bold">Unable to Connect Mailbox</h2>
-            <p className="text-muted-foreground">
-              There was an issue connecting your Gmail account. Please try logging in again.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Check the backend terminal for error details.
-            </p>
+            <h2 className="text-2xl font-bold">No emails found</h2>
           </div>
         </div>
       ) : viewMode === 'SEARCH_VIEW' ? (
