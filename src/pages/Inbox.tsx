@@ -139,12 +139,15 @@ export function Inbox() {
   // Check if current mailbox is syncing
   const isSyncing = currentMailbox?.syncStatus === 'syncing' || currentMailbox?.syncStatus === 'pending';
   
-  // Debug logging
+  
+  // When selectedEmail is loaded from URL param, update mailbox if needed
   useEffect(() => {
-    console.log('Current mailbox:', currentMailbox);
-    console.log('Sync status:', currentMailbox?.syncStatus);
-    console.log('Is syncing:', isSyncing);
-  }, [currentMailbox, isSyncing]);
+    if (selectedEmail && selectedEmail.mailboxId && selectedEmail.mailboxId !== selectedMailboxId) {
+      console.log('Switching to mailbox from selected email:', selectedEmail.mailboxId);
+      setSelectedMailboxId(selectedEmail.mailboxId);
+      setUIMailboxId(selectedEmail.mailboxId);
+    }
+  }, [selectedEmail, selectedMailboxId, setUIMailboxId]);
   
   // Auto-refresh emails when sync completes
   useEffect(() => {
@@ -155,17 +158,29 @@ export function Inbox() {
   }, [isSyncing, currentMailbox?.syncStatus]);
 
   // Reset selection and page when mailbox changes
+  // BUT preserve selection if it came from URL params
   useEffect(() => {
-    setSelectedEmailId(null);
+    const emailIdParam = searchParams.get('emailId');
+    const hasUrlEmailId = emailIdParam && !isNaN(parseInt(emailIdParam, 10));
+    
+    if (!hasUrlEmailId) {
+      setSelectedEmailId(null);
+    }
     setPage(1);
     setIsMobileMenuOpen(false);
-  }, [selectedMailboxId]);
+  }, [selectedMailboxId, searchParams]);
 
   // Reset page when folder changes
+  // BUT preserve selection if it came from URL params
   useEffect(() => {
-    setSelectedEmailId(null);
+    const emailIdParam = searchParams.get('emailId');
+    const hasUrlEmailId = emailIdParam && !isNaN(parseInt(emailIdParam, 10));
+    
+    if (!hasUrlEmailId) {
+      setSelectedEmailId(null);
+    }
     setPage(1);
-  }, [selectedFolder]);
+  }, [selectedFolder, searchParams]);
 
   // Reset page when search term changes
   useEffect(() => {
