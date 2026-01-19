@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Settings, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { KanbanSettingsModal } from './KanbanSettingsModal';
+import { useUIStore } from '@/store/uiStore';
 
 interface KanbanBoardProps {
   emails: any[];
@@ -16,6 +17,7 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
   const { data: dbColumns = [], isLoading: isLoadingColumns } = useKanbanColumns();
   const [columns, setColumns] = useState<Record<string, any[]>>({});
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { filters } = useUIStore();
 
   const { updateEmail, moveEmailToColumn } = useEmailMutations();
 
@@ -29,9 +31,12 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
     });
 
     emails.forEach((email) => {
-      // Filter out snoozed emails
-      if (email.isSnoozed || (email.snoozedUntil && new Date(email.snoozedUntil) > new Date())) {
-        return;
+      // Hide snoozed emails by default unless snoozed filter is active
+      const isSnoozedFilterActive = filters.isSnoozed === true;
+      const isEmailSnoozed = email.isSnoozed || (email.snoozedUntil && new Date(email.snoozedUntil) > new Date());
+      
+      if (isEmailSnoozed && !isSnoozedFilterActive) {
+        return; // Skip snoozed emails when filter is not active
       }
       
       let targetColumn = null;
