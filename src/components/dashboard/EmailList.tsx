@@ -6,6 +6,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { List } from 'react-virtualized';
 import 'react-virtualized/styles.css';
 import { useRef, useEffect, useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 import { useEmailMutations } from '@/hooks/useEmail';
 
 interface EmailListProps {
@@ -47,12 +49,53 @@ export function EmailList({
 }: EmailListProps) {
   const listRef = useRef<List>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { toggleStar, markAsRead } = useEmailMutations();
+  const { toggleStar, markAsRead, deleteEmail } = useEmailMutations();
   const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
   const handleToggleStar = (e: React.MouseEvent, emailId: number, isStarred: boolean) => {
     e.stopPropagation();
     toggleStar.mutate({ id: emailId, isStarred: !isStarred });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedEmails.length === emails.length) {
+      setSelectedEmails([]);
+    } else {
+      setSelectedEmails(emails.map(e => e.id));
+    }
+  };
+
+  const toggleEmailSelection = (e: React.MouseEvent, emailId: number) => {
+    e.stopPropagation();
+    setSelectedEmails(prev => 
+      prev.includes(emailId) 
+        ? prev.filter(id => id !== emailId)
+        : [...prev, emailId]
+    );
+  };
+
+  const handleDeleteSelected = () => {
+    const emailsToDelete = selectedEmails.length > 0 ? selectedEmails : (selectedEmailId ? [selectedEmailId] : []);
+    
+    if (emailsToDelete.length === 0) {
+      toast.error('No emails selected');
+      return;
+    }
+
+    const count = emailsToDelete.length;
+    toast.promise(
+      Promise.all(emailsToDelete.map(id => deleteEmail.mutateAsync(id))),
+      {
+        loading: `Deleting ${count} email${count > 1 ? 's' : ''}...`,
+        success: () => {
+          setSelectedEmails([]);
+          setIsSelectMode(false);
+          return `${count} email${count > 1 ? 's' : ''} deleted`;
+        },
+        error: `Failed to delete email${count > 1 ? 's' : ''}`,
+      }
+    );
   };
 
   const markSelectedAsRead = () => {
@@ -85,25 +128,34 @@ export function EmailList({
   const startIndex = (page - 1) * pageSize + 1;
   const endIndex = Math.min(page * pageSize, totalEmails);
 
-  console.log('Rendering EmailList with emails:', emails);
   // Email row renderer for react-virtualized
   const rowRenderer = ({ index, key, style }: { index: number; key: string; style: React.CSSProperties }) => {
     const email = emails[index];
     if (!email) return null;
 
+    const isSelected = selectedEmails.includes(email.id);
+
     return (
       <div
         key={key}
         style={style}
-        onClick={() => onSelectEmail(email.id)}
+        onClick={() => !isSelectMode && onSelectEmail(email.id)}
         className={cn(
           "flex flex-col gap-1 px-4 py-3 cursor-pointer hover:bg-accent transition-colors border-b",
           selectedEmailId === email.id ? "bg-accent" : "bg-white",
-          !email.isRead && "font-semibold bg-blue-50/50"
+          !email.isRead && "font-semibold bg-blue-50/50",
+          isSelected && "bg-blue-100"
         )}
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
+            {isSelectMode && (
+              <Checkbox
+                checked={isSelected}
+                onClick={(e) => toggleEmailSelection(e, email.id)}
+                className="flex-shrink-0"
+              />
+            )}
             <button
               onClick={(e) => handleToggleStar(e, email.id, email.isStarred)}
               className="flex-shrink-0 hover:scale-110 transition-transform"
@@ -159,9 +211,35 @@ export function EmailList({
 
       {/* Action Bar */}
       <div className="flex items-center gap-1 p-2 border-b bg-gray-50/50">
-        <Button variant="ghost" size="sm" className="h-8">
-          <CheckSquare className="mr-2 h-4 w-4" /> Select
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8"
+          onClick={() => {
+            setIsSelectMode(!isSelectMode);
+            if (!isSelectMode) {
+              setSelectedEmails([]);
+            }
+          }}
+        >
+          <CheckSquare className="mr-2 h-4 w-4" /> 
+          {isSelectMode ? 'Cancel' : 'Select'}
         </Button>
+        {isSelectMode && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8"
+            onClick={toggleSelectAll}
+          >
+            {selectedEmails.length === emails.length ? 'Deselect All' : 'Select All'}
+          </Button>
+        )}
+        {selectedEmails.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {selectedEmails.length} selected
+          </span>
+        )}
         <div className="ml-auto flex gap-1">
             <Button 
               variant="ghost" 
@@ -183,7 +261,14 @@ export function EmailList({
             >
                 <Mail className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete (#)">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" 
+              title="Delete (#)"
+              onClick={handleDeleteSelected}
+              disabled={!selectedEmailId && selectedEmails.length === 0}
+            >
                 <Trash2 className="h-4 w-4" />
             </Button>
         </div>
