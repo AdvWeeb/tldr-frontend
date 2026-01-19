@@ -67,47 +67,55 @@ export function Inbox() {
       ...filters, // Include filters from UI store
     };
 
+    // If taskStatus filter is active, don't add folder-based label filters
+    // because taskStatus is more specific than folder labels
+    const hasTaskStatusFilter = filters.taskStatus !== undefined && filters.taskStatus !== null;
+
     // Handle user labels (format: "label:LABEL_ID")
     if (selectedFolder.startsWith('label:')) {
       const labelId = selectedFolder.replace('label:', '');
-      params.label = labelId;
+      if (!hasTaskStatusFilter) {
+        params.label = labelId;
+      }
       return params;
     }
 
-    // Handle core folders
-    switch (selectedFolder) {
-      case 'favorites':
-        params.isStarred = true;
-        break;
-      case 'snoozed':
-        params.isSnoozed = true;
-        break;
-      case 'inbox':
-        params.label = 'INBOX';
-        break;
-      case 'drafts':
-        params.label = 'DRAFT';
-        break;
-      case 'sent':
-        params.label = 'SENT';
-        break;
-      case 'spam':
-        params.label = 'SPAM';
-        break;
-      case 'bin':
-        params.includeDeleted = true;
-        break;
-      case 'archive':
-        // Archive = emails without INBOX label (handled by backend with special logic)
-        params.excludeLabel = 'INBOX';
-        break;
-      default:
-        // Check if it's in the folder map
-        const gmailLabel = FOLDER_TO_LABEL_MAP[selectedFolder];
-        if (gmailLabel) {
-          params.label = gmailLabel;
-        }
-        break;
+    // Handle core folders - skip label filters if taskStatus is active
+    if (!hasTaskStatusFilter) {
+      switch (selectedFolder) {
+        case 'favorites':
+          params.isStarred = true;
+          break;
+        case 'snoozed':
+          params.isSnoozed = true;
+          break;
+        case 'inbox':
+          params.label = 'INBOX';
+          break;
+        case 'drafts':
+          params.label = 'DRAFT';
+          break;
+        case 'sent':
+          params.label = 'SENT';
+          break;
+        case 'spam':
+          params.label = 'SPAM';
+          break;
+        case 'bin':
+          params.includeDeleted = true;
+          break;
+        case 'archive':
+          // Archive = emails without INBOX label (handled by backend with special logic)
+          params.excludeLabel = 'INBOX';
+          break;
+        default:
+          // Check if it's in the folder map
+          const gmailLabel = FOLDER_TO_LABEL_MAP[selectedFolder];
+          if (gmailLabel) {
+            params.label = gmailLabel;
+          }
+          break;
+      }
     }
 
     return params;

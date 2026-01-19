@@ -133,11 +133,8 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
     const sourceColumnId = parseInt(source.droppableId);
     const destColConfig = dbColumns.find(c => c.id === columnId);
     const sourceColConfig = dbColumns.find(c => c.id === sourceColumnId);
-    const newTaskStatus = destColConfig?.title.toLowerCase() === 'to do' ? 'todo' : 
-                         destColConfig?.title.toLowerCase() === 'in progress' ? 'in_progress' :
-                         destColConfig?.title.toLowerCase() === 'done' ? 'done' : 'none';
 
-    // Call moveEmailToColumn to sync Gmail labels
+    // Call moveEmailToColumn to sync Gmail labels and update taskStatus
     moveEmailToColumn.mutate({
       emailId,
       columnId,
@@ -145,8 +142,6 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
       archiveFromInbox: sourceColConfig?.gmailLabelId === 'INBOX' && destColConfig?.gmailLabelId !== 'INBOX'
     }, {
       onSuccess: () => {
-        // Also update task status for UI consistency
-        updateEmail.mutate({ id: emailId, data: { taskStatus: newTaskStatus as any } });
         toast.success(`Moved to ${destColConfig?.title}`);
       },
       onError: (error) => {
