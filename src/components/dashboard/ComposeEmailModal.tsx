@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Send, Paperclip, Image, Smile } from 'lucide-react';
+import { X, Send, Paperclip, Image as ImageIcon, Smile, File as FileIcon, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEmailMutations } from '@/hooks/useEmail';
+import { toast } from 'sonner';
 
 interface ComposeEmailModalProps {
   isOpen: boolean;
@@ -32,6 +33,8 @@ export function ComposeEmailModal({
 }: ComposeEmailModalProps) {
   const { sendEmail } = useEmailMutations();
   const modalRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   
   const [to, setTo] = useState('');
   const [cc, setCc] = useState('');
@@ -39,6 +42,7 @@ export function ComposeEmailModal({
   const [body, setBody] = useState('');
   const [showCc, setShowCc] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   // Initialize form when modal opens or props change
   useEffect(() => {
@@ -47,6 +51,7 @@ export function ComposeEmailModal({
       setTo('');
       setCc('');
       setSubject('');
+      setAttachments([]);
       setBody('');
       setShowCc(false);
       setErrors({});
@@ -130,6 +135,58 @@ export function ComposeEmailModal({
       .replace(/'/g, '&#039;')
       .replace(/\n/g, '<br>');
   };
+    
+
+  // Handle file attachments
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'file' | 'image') => {
+    const files = Array.from(e.target.files || []);
+    
+    if (files.length === 0) return;
+
+    // Filter by type if image
+    const validFiles = type === 'image' 
+      ? files.filter(f => f.type.startsWith('image/'))
+      : files;
+
+    if (validFiles.length !== files.length && type === 'image') {
+      toast.error('Some files were not images and were skipped');
+    }
+
+    // Check total size (25MB limit for all attachments combined)
+    const currentSize = attachments.reduce((sum, f) => sum + f.size, 0);
+    const newSize = validFiles.reduce((sum, f) => sum + f.size, 0);
+    const totalSize = currentSize + newSize;
+    const maxSize = 25 * 1024 * 1024; // 25MB
+
+    if (totalSize > maxSize) {
+      toast.error(`Total attachment size cannot exceed 25MB. Current: ${((currentSize + newSize) / 1024 / 1024).toFixed(2)}MB`);
+      return;
+    }
+
+    // Check file count (max 10 files)
+    if (attachments.length + validFiles.length > 10) {
+      toast.error('Cannot attach more than 10 files');
+      return;
+    }
+
+    setAttachments(prev => [...prev, ...validFiles]);
+    toast.success(`Added ${validFiles.length} file${validFiles.length > 1 ? 's' : ''}`);
+
+    // Reset input
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -202,6 +259,7 @@ export function ComposeEmailModal({
       bodyHtml: textToHtml(body.trim()),
       inReplyTo: (mode === 'reply' || mode === 'replyAll') ? originalEmail?.gmailMessageId : undefined,
       threadId: (mode === 'reply' || mode === 'replyAll') ? originalEmail?.gmailThreadId : undefined,
+      attachments: attachments.length > 0 ? attachments : undefined,
     }, {
       onSuccess: () => {
         onClose();
@@ -370,16 +428,72 @@ export function ComposeEmailModal({
               <p id="body-error" className="text-red-600 text-xs mt-1">{errors.body}</p>
             )}
           </div>
+
+          {/* Attachments Display */}
+          {attachments.length > 0 && (
+            <div className="pt-2 border-t">
+              <Label className="text-sm text-gray-600 mb-2 block">
+                Attachments ({attachments.length})
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {attachments.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
+                  >
+                    {file.type.startsWith('image/') ? (
+                      <ImageIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    ) : (
+                      <FileIcon className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 flex-shrink-0"
+                      onClick={() => removeAttachment(index)}
+                      title="Remove attachment"
+                    >
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Total size: {formatFileSize(attachments.reduce((sum, f) => sum + f.size, 0))} / 25 MB
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
         <div className="bg-gray-50 px-4 py-3 border-t flex justify-between items-center">
           <div className="flex gap-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFileSelect(e, 'file')}
+              accept="*/*"
+            />
+            <input
+              ref={imageInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFileSelect(e, 'image')}
+              accept="image/*"
+            />
             <Button
               variant="ghost"
               size="icon"
               title="Attach file"
               className="h-8 w-8"
+              onClick={() => fileInputRef.current?.click()}
             >
               <Paperclip className="h-4 w-4" />
             </Button>
@@ -388,16 +502,9 @@ export function ComposeEmailModal({
               size="icon"
               title="Insert image"
               className="h-8 w-8"
+              onClick={() => imageInputRef.current?.click()}
             >
-              <Image className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Insert emoji"
-              className="h-8 w-8"
-            >
-              <Smile className="h-4 w-4" />
+              <ImageIcon className="h-4 w-4" />
             </Button>
           </div>
           <div className="flex gap-2">

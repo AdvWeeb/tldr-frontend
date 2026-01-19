@@ -134,6 +134,7 @@ export interface SendEmailData {
   bodyHtml?: string;
   inReplyTo?: string;
   threadId?: string;
+  attachments?: File[];
 }
 
 export interface SummarizeEmailResponse {
@@ -294,6 +295,45 @@ export const emailApi = {
   },
 
   sendEmail: async (data: SendEmailData): Promise<{ messageId: string }> => {
+    // If there are attachments, send as FormData
+    if (data.attachments && data.attachments.length > 0) {
+      const formData = new FormData();
+      
+      // Add all fields except attachments
+      formData.append('mailboxId', data.mailboxId.toString());
+      formData.append('to', JSON.stringify(data.to));
+      if (data.cc && data.cc.length > 0) {
+        formData.append('cc', JSON.stringify(data.cc));
+      }
+      if (data.bcc && data.bcc.length > 0) {
+        formData.append('bcc', JSON.stringify(data.bcc));
+      }
+      formData.append('subject', data.subject);
+      formData.append('body', data.body);
+      if (data.bodyHtml) {
+        formData.append('bodyHtml', data.bodyHtml);
+      }
+      if (data.inReplyTo) {
+        formData.append('inReplyTo', data.inReplyTo);
+      }
+      if (data.threadId) {
+        formData.append('threadId', data.threadId);
+      }
+      
+      // Add files
+      data.attachments.forEach(file => {
+        formData.append('attachments', file);
+      });
+      
+      const response = await apiClient.post<{ messageId: string }>('/emails/send', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    }
+    
+    // No attachments, send as JSON
     const response = await apiClient.post<{ messageId: string }>('/emails/send', data);
     return response.data;
   },
