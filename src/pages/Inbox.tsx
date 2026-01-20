@@ -67,44 +67,55 @@ export function Inbox() {
       ...filters, // Include filters from UI store
     };
 
+    // If taskStatus filter is active, don't add folder-based label filters
+    // because taskStatus is more specific than folder labels
+    const hasTaskStatusFilter = filters.taskStatus !== undefined && filters.taskStatus !== null;
+
     // Handle user labels (format: "label:LABEL_ID")
     if (selectedFolder.startsWith('label:')) {
       const labelId = selectedFolder.replace('label:', '');
-      params.label = labelId;
+      if (!hasTaskStatusFilter) {
+        params.label = labelId;
+      }
       return params;
     }
 
-    // Handle core folders
-    switch (selectedFolder) {
-      case 'favorites':
-        params.isStarred = true;
-        break;
-      case 'inbox':
-        params.label = 'INBOX';
-        break;
-      case 'drafts':
-        params.label = 'DRAFT';
-        break;
-      case 'sent':
-        params.label = 'SENT';
-        break;
-      case 'spam':
-        params.label = 'SPAM';
-        break;
-      case 'bin':
-        params.label = 'TRASH';
-        break;
-      case 'archive':
-        // Archive = emails without INBOX label (handled by backend with special logic)
-        params.excludeLabel = 'INBOX';
-        break;
-      default:
-        // Check if it's in the folder map
-        const gmailLabel = FOLDER_TO_LABEL_MAP[selectedFolder];
-        if (gmailLabel) {
-          params.label = gmailLabel;
-        }
-        break;
+    // Handle core folders - skip label filters if taskStatus is active
+    if (!hasTaskStatusFilter) {
+      switch (selectedFolder) {
+        case 'favorites':
+          params.isStarred = true;
+          break;
+        case 'snoozed':
+          params.isSnoozed = true;
+          break;
+        case 'inbox':
+          params.label = 'INBOX';
+          break;
+        case 'drafts':
+          params.label = 'DRAFT';
+          break;
+        case 'sent':
+          params.label = 'SENT';
+          break;
+        case 'spam':
+          params.label = 'SPAM';
+          break;
+        case 'bin':
+          params.includeDeleted = true;
+          break;
+        case 'archive':
+          // Archive = emails without INBOX label (handled by backend with special logic)
+          params.excludeLabel = 'INBOX';
+          break;
+        default:
+          // Check if it's in the folder map
+          const gmailLabel = FOLDER_TO_LABEL_MAP[selectedFolder];
+          if (gmailLabel) {
+            params.label = gmailLabel;
+          }
+          break;
+      }
     }
 
     return params;
@@ -128,12 +139,15 @@ export function Inbox() {
   // Check if current mailbox is syncing
   const isSyncing = currentMailbox?.syncStatus === 'syncing' || currentMailbox?.syncStatus === 'pending';
   
-  // Debug logging
+  
+  // When selectedEmail is loaded from URL param, update mailbox if needed
   useEffect(() => {
-    console.log('Current mailbox:', currentMailbox);
-    console.log('Sync status:', currentMailbox?.syncStatus);
-    console.log('Is syncing:', isSyncing);
-  }, [currentMailbox, isSyncing]);
+    if (selectedEmail && selectedEmail.mailboxId && selectedEmail.mailboxId !== selectedMailboxId) {
+      console.log('Switching to mailbox from selected email:', selectedEmail.mailboxId);
+      setSelectedMailboxId(selectedEmail.mailboxId);
+      setUIMailboxId(selectedEmail.mailboxId);
+    }
+  }, [selectedEmail, selectedMailboxId, setUIMailboxId]);
   
   // Auto-refresh emails when sync completes
   useEffect(() => {
@@ -144,17 +158,29 @@ export function Inbox() {
   }, [isSyncing, currentMailbox?.syncStatus]);
 
   // Reset selection and page when mailbox changes
+  // BUT preserve selection if it came from URL params
   useEffect(() => {
-    setSelectedEmailId(null);
+    const emailIdParam = searchParams.get('emailId');
+    const hasUrlEmailId = emailIdParam && !isNaN(parseInt(emailIdParam, 10));
+    
+    if (!hasUrlEmailId) {
+      setSelectedEmailId(null);
+    }
     setPage(1);
     setIsMobileMenuOpen(false);
-  }, [selectedMailboxId]);
+  }, [selectedMailboxId, searchParams]);
 
   // Reset page when folder changes
+  // BUT preserve selection if it came from URL params
   useEffect(() => {
-    setSelectedEmailId(null);
+    const emailIdParam = searchParams.get('emailId');
+    const hasUrlEmailId = emailIdParam && !isNaN(parseInt(emailIdParam, 10));
+    
+    if (!hasUrlEmailId) {
+      setSelectedEmailId(null);
+    }
     setPage(1);
-  }, [selectedFolder]);
+  }, [selectedFolder, searchParams]);
 
   // Reset page when search term changes
   useEffect(() => {
@@ -272,14 +298,7 @@ export function Inbox() {
       ) : mailboxes.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-md text-center space-y-4">
-            <div className="text-6xl">⚠️</div>
-            <h2 className="text-2xl font-bold">Unable to Connect Mailbox</h2>
-            <p className="text-muted-foreground">
-              There was an issue connecting your Gmail account. Please try logging in again.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Check the backend terminal for error details.
-            </p>
+            <h2 className="text-2xl font-bold">No emails found</h2>
           </div>
         </div>
       ) : viewMode === 'SEARCH_VIEW' ? (

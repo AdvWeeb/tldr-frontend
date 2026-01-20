@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Settings, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { KanbanSettingsModal } from './KanbanSettingsModal';
+import { useUIStore } from '@/store/uiStore';
 
 interface KanbanBoardProps {
   emails: any[];
@@ -16,6 +17,7 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
   const { data: dbColumns = [], isLoading: isLoadingColumns } = useKanbanColumns();
   const [columns, setColumns] = useState<Record<string, any[]>>({});
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { filters } = useUIStore();
 
   const { updateEmail, moveEmailToColumn } = useEmailMutations();
 
@@ -29,23 +31,33 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
     });
 
     emails.forEach((email) => {
-      // Filter out snoozed emails
-      if (email.isSnoozed || (email.snoozedUntil && new Date(email.snoozedUntil) > new Date())) {
-        return;
+      // Hide snoozed emails by default unless snoozed filter is active
+      const isSnoozedFilterActive = filters.isSnoozed === true;
+      const isEmailSnoozed = email.isSnoozed || (email.snoozedUntil && new Date(email.snoozedUntil) > new Date());
+      
+      if (isEmailSnoozed && !isSnoozedFilterActive) {
+        return; // Skip snoozed emails when filter is not active
       }
       
       let targetColumn = null;
 
-      // Match based on taskStatus first (for custom columns)
-      if (email.taskStatus === 'todo' || email.taskStatus === 'to_do') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'to do' || c.title.toLowerCase() === 'todo');
-      } else if (email.taskStatus === 'in_progress') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'in progress');
-      } else if (email.taskStatus === 'done') {
-        targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'done');
+      // Priority 1: Use columnId if set (most reliable for custom columns)
+      if (email.columnId) {
+        targetColumn = dbColumns.find(c => c.id === email.columnId);
       }
 
-      // If no taskStatus match, check Gmail label-based columns
+      // Priority 2: Match based on taskStatus (for task-based columns)
+      if (!targetColumn) {
+        if (email.taskStatus === 'todo' || email.taskStatus === 'to_do') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'to do' || c.title.toLowerCase() === 'todo');
+        } else if (email.taskStatus === 'in_progress') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'in progress');
+        } else if (email.taskStatus === 'done') {
+          targetColumn = dbColumns.find(c => c.title.toLowerCase() === 'done');
+        }
+      }
+
+      // Priority 3: Check Gmail label-based columns
       if (!targetColumn) {
         // Ensure labels is an array (handle string from API)
         let emailLabels: string[] = [];
@@ -53,11 +65,6 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
           emailLabels = email.labels;
         } else if (typeof email.labels === 'string' && email.labels) {
           emailLabels = (email.labels as string).split(',').map((l: string) => l.trim());
-        }
-        
-        // Debug log (remove after fixing)
-        if (emailLabels.includes('IMPORTANT')) {
-          console.log(`Email ${email.id} has IMPORTANT label:`, emailLabels);
         }
         
         // Check for Starred column (isStarred flag or STARRED label)
@@ -126,11 +133,8 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
     const sourceColumnId = parseInt(source.droppableId);
     const destColConfig = dbColumns.find(c => c.id === columnId);
     const sourceColConfig = dbColumns.find(c => c.id === sourceColumnId);
-    const newTaskStatus = destColConfig?.title.toLowerCase() === 'todo' ? 'todo' : 
-                         destColConfig?.title.toLowerCase() === 'in progress' ? 'in_progress' :
-                         destColConfig?.title.toLowerCase() === 'done' ? 'done' : 'none';
 
-    // Call moveEmailToColumn to sync Gmail labels
+    // Call moveEmailToColumn to sync Gmail labels and update taskStatus
     moveEmailToColumn.mutate({
       emailId,
       columnId,
@@ -138,8 +142,6 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
       archiveFromInbox: sourceColConfig?.gmailLabelId === 'INBOX' && destColConfig?.gmailLabelId !== 'INBOX'
     }, {
       onSuccess: () => {
-        // Also update task status for UI consistency
-        updateEmail.mutate({ id: emailId, data: { taskStatus: newTaskStatus as any } });
         toast.success(`Moved to ${destColConfig?.title}`);
       },
       onError: (error) => {
