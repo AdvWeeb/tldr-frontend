@@ -434,7 +434,7 @@ export function Dashboard() {
         <div className="container mx-auto px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-              <div className="font-['Instrument_Serif',serif] text-2xl italic mb-2">SecureMail</div>
+              <div className="font-['Instrument_Serif',serif] text-2xl italic mb-2">TL;DR</div>
               <p className="text-sm opacity-60">
                 Crafted with intention, not templates.
               </p>
@@ -447,7 +447,7 @@ export function Dashboard() {
             </div>
           </div>
           <div className="text-center mt-8 text-xs opacity-40">
-            © 2024 SecureMail. All rights reserved.
+            © 2026 TL;DR. All rights reserved.
           </div>
         </div>
       </footer>
