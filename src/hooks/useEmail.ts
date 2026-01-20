@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { emailApi, type EmailQueryParams, type UpdateEmailData, type FuzzySearchParams } from '@/services/emailApi';
+import { emailApi, type EmailQueryParams, type UpdateEmailData, type FuzzySearchParams, type SendEmailData } from '@/services/emailApi';
 
 export const useMailboxes = () => {
   const query = useQuery({
@@ -116,17 +116,7 @@ export const useEmailMutations = () => {
   });
 
   const sendEmail = useMutation({
-    mutationFn: (data: {
-      mailboxId: number;
-      to: string[];
-      cc?: string[];
-      bcc?: string[];
-      subject: string;
-      body: string;
-      bodyHtml?: string;
-      inReplyTo?: string;
-      threadId?: string;
-    }) => emailApi.sendEmail(data),
+    mutationFn: (data: SendEmailData) => emailApi.sendEmail(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] });

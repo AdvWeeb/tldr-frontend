@@ -25,6 +25,7 @@ export interface MailboxStats {
   sent: StatItem;
   spam: StatItem;
   trash: StatItem;
+  snoozed?: StatItem;
 }
 
 export interface Email {

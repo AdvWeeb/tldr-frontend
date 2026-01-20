@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Send, Paperclip, Image as ImageIcon, Smile, File as FileIcon, XCircle } from 'lucide-react';
+import { X, Send, Paperclip, Image as ImageIcon, File as FileIcon, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

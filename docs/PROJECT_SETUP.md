@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd Ga03
+cd tldr
 ```
 
 ### 2. Install Dependencies
@@ -63,7 +63,7 @@ The application will be available at `http://localhost:5173/`
 ## Project Structure
 
 ```
-Ga03/
+tldr/
 ├── docs/                       # Documentation
 │   ├── PROJECT_SETUP.md       # This file
 │   ├── ARCHITECTURE.md        # System architecture
