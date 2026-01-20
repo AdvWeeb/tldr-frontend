@@ -161,12 +161,6 @@ export default function Login() {
               </>
             )}
           </Button>
-           {/* Test Credentials Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm mt-4">
-            <p className="font-medium text-blue-900 mb-1">Test Credentials:</p>
-            <p className="text-blue-700">Email: any valid email</p>
-            <p className="text-blue-700">Password: any password (min 6 chars)</p>
-          </div>
         </div>
       </div>
       <div className="hidden bg-muted lg:flex items-center justify-center p-10 text-white bg-gradient-to-br from-gray-900 to-gray-800">

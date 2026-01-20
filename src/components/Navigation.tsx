@@ -85,7 +85,7 @@ export function Navigation() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 text-xl font-bold flex-shrink-0">
             <Mail className="h-6 w-6" />
-            <span className="hidden sm:inline">SecureMail</span>
+            <span className="hidden sm:inline">TL;DR</span>
           </Link>
 
           {/* Search Bar (only on inbox/kanban pages) */}

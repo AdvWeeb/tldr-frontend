@@ -2,7 +2,7 @@
 
 ## Getting Started for New Team Members
 
-Welcome to the SecureMail project! This guide will help you understand the codebase, coding standards, and development workflow.
+Welcome to the TL;DR project! This guide will help you understand the codebase, coding standards, and development workflow.
 
 ## Development Workflow
 
