@@ -1,13 +1,9 @@
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Navigation } from '@/components/Navigation';
 import { useAuthStore } from '@/store/authStore';
 
 export function Dashboard() {
   const { isAuthenticated } = useAuthStore();
-
-  if (isAuthenticated) {
-    return <Navigate to="/inbox" replace />;
-  }
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] text-[#0A0A0A] overflow-x-hidden relative font-['Space_Grotesk',sans-serif]">

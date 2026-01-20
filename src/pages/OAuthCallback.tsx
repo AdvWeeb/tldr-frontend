@@ -4,67 +4,59 @@ import { useGoogleLogin } from '../hooks/useAuth';
 import { useEmailMutations } from '../hooks/useEmail';
 import { extractOAuthParams, retrieveAndValidateOAuthState } from '../utils/oauth';
 
-/**
- * OAuth Callback Page
- * Handles redirect from Google OAuth, exchanges code for tokens
- */
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const googleLoginMutation = useGoogleLogin();
   const { connectMailbox } = useEmailMutations();
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
-      try {
-        // Check if we have the required parameters
+      try {        
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state');
 
         if (!code || !state) {
           setError('Missing OAuth parameters. Please try signing in again.');
+          setIsProcessing(false);
           return;
         }
 
-        // Extract authorization code and state from URL
         const params = extractOAuthParams(window.location.href);
         if (!params) {
           setError('Invalid OAuth callback parameters');
+          setIsProcessing(false);
           return;
         }
 
-        // Validate state and retrieve code verifier
         const codeVerifier = retrieveAndValidateOAuthState(params.state);
         if (!codeVerifier) {
           setError('OAuth session expired. Please try signing in again.');
+          setIsProcessing(false);
           return;
         }
 
-        // Check if this is for adding an additional mailbox (not login)
         const oauthPurpose = localStorage.getItem('oauth_purpose');
         localStorage.removeItem('oauth_purpose');
 
         if (oauthPurpose === 'mailbox_connection') {
-          // Connect additional mailbox to existing logged-in user
           await connectMailbox.mutateAsync({
             code: params.code,
             codeVerifier,
           });
-          
           navigate('/inbox', { replace: true });
         } else {
-          // Login with Google (backend auto-creates mailbox)
           await googleLoginMutation.mutateAsync({
             code: params.code,
             codeVerifier,
           });
-
           navigate('/inbox', { replace: true });
         }
       } catch (err) {
-        console.error('OAuth callback error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
+        setIsProcessing(false);
       }
     };
 
@@ -73,14 +65,21 @@ export default function OAuthCallback() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]">
+        <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-3xl shadow-lg border-2 border-[#0A0A0A]">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-red-600">Authentication Error</h2>
+            <div className="w-16 h-16 bg-[#FF6B6B] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-['Instrument_Serif',serif] italic font-bold text-[#0A0A0A]">
+              Authentication Error
+            </h2>
             <p className="mt-4 text-gray-600">{error}</p>
             <button
               onClick={() => navigate('/login', { replace: true })}
-              className="mt-6 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              className="mt-6 w-full py-3 px-4 rounded-2xl shadow-sm text-sm font-bold text-white bg-[#0A0A0A] hover:scale-105 transition-all duration-300"
             >
               Back to Login
             </button>
@@ -90,17 +89,23 @@ export default function OAuthCallback() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Completing sign in...</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Please wait while we set up your account
-          </p>
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]">
+        <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-3xl shadow-lg border-2 border-[#0A0A0A]">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#10F9A0] border-t-transparent"></div>
+            <h2 className="mt-6 text-3xl font-['Instrument_Serif',serif] italic font-bold text-[#0A0A0A]">
+              Completing sign in...
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Please wait while we set up your account
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }

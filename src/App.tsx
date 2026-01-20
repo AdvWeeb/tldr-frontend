@@ -9,15 +9,15 @@ import { Inbox } from './pages/Inbox';
 import { Kanban } from './pages/Kanban';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './components/AuthProvider';
+import { LandingPage } from './pages/LandingPage';
 import './App.css';
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
@@ -30,7 +30,15 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/inbox"
               element={
