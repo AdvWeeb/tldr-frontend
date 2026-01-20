@@ -2,7 +2,7 @@
 
 ## ✅ Integration Complete
 
-The frontend (Ga03) has been successfully integrated with the backend (tldr-backend) NestJS API, including full OAuth 2.0 implementation with PKCE for Google authentication.
+The frontend (tldr) has been successfully integrated with the backend (tldr-backend) NestJS API, including full OAuth 2.0 implementation with PKCE for Google authentication.
 
 ## What Was Changed
 
@@ -217,7 +217,7 @@ Verify: http://localhost:3000/api/docs
 ### 2. Start Frontend
 
 ```bash
-cd Ga03
+cd tldr
 npm run dev
 ```
 

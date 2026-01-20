@@ -19,7 +19,7 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { filters } = useUIStore();
 
-  const { updateEmail, moveEmailToColumn } = useEmailMutations();
+  const { moveEmailToColumn } = useEmailMutations();
 
   // Organize emails into columns based on database configuration
   useEffect(() => {

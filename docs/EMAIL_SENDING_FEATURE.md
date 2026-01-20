@@ -47,19 +47,19 @@ Complete implementation of email sending functionality with support for composin
 
 ## Frontend Implementation
 
-### 1. Email API Service (`Ga03/src/services/emailApi.ts`)
+### 1. Email API Service (`tldr/src/services/emailApi.ts`)
 - **Added Interface**: `SendEmailData` with all required fields
 - **Added Method**: `sendEmail(data: SendEmailData) => Promise<{messageId: string}>`
 - **Implementation**: POST request to `/emails/send` endpoint
 
-### 2. React Query Hook (`Ga03/src/hooks/useEmail.ts`)
+### 2. React Query Hook (`tldr/src/hooks/useEmail.ts`)
 - **Added Hook**: `sendEmail` mutation in `useEmailMutations()`
 - **Behavior**:
   - Calls `emailApi.sendEmail()`
   - On success: Invalidates `['emails']` and `['mailboxes']` queries to refresh data
   - Returns mutation object with `mutate()`, `isPending`, etc.
 
-### 3. ComposeEmailModal (`Ga03/src/components/dashboard/ComposeEmailModal.tsx`)
+### 3. ComposeEmailModal (`tldr/src/components/dashboard/ComposeEmailModal.tsx`)
 - **Enhanced Props**:
   - Added `mailboxId` (required for sending)
   - Added `gmailMessageId` and `gmailThreadId` to originalEmail (for threading)
@@ -77,14 +77,14 @@ Complete implementation of email sending functionality with support for composin
   - **Reply All**: Pre-fills To, Cc, Subject (Re:), Body with quote
   - **Forward**: Pre-fills Subject (Fwd:), Body with quote
 
-### 4. EmailDetail (`Ga03/src/components/dashboard/EmailDetail.tsx`)
+### 4. EmailDetail (`tldr/src/components/dashboard/EmailDetail.tsx`)
 - **Enhanced Props**: Added `mailboxId` prop
 - **Implementation**:
   - Passes `mailboxId` to ComposeEmailModal
   - Passes `gmailMessageId` and `gmailThreadId` for threading
   - Reply/Reply All/Forward buttons open modal with correct mode
 
-### 5. Inbox Page (`Ga03/src/pages/Inbox.tsx`)
+### 5. Inbox Page (`tldr/src/pages/Inbox.tsx`)
 - **Implementation**: Passes `mailboxId={selectedMailboxId!}` to EmailDetail
 
 ## Features
@@ -209,9 +209,9 @@ Content-Type: text/html; charset="UTF-8"
 5. `tldr-backend/src/modules/email/email.controller.ts` (MODIFIED - added POST /emails/send endpoint)
 
 ### Frontend
-1. `Ga03/src/services/emailApi.ts` (MODIFIED - added SendEmailData interface and sendEmail method)
-2. `Ga03/src/hooks/useEmail.ts` (MODIFIED - added sendEmail mutation)
-3. `Ga03/src/components/dashboard/ComposeEmailModal.tsx` (MODIFIED - wired to API)
-4. `Ga03/src/components/dashboard/EmailDetail.tsx` (MODIFIED - added mailboxId prop)
-5. `Ga03/src/pages/Inbox.tsx` (MODIFIED - passes mailboxId to EmailDetail)
-6. `Ga03/docs/EMAIL_SENDING_FEATURE.md` (NEW - this document)
+1. `tldr/src/services/emailApi.ts` (MODIFIED - added SendEmailData interface and sendEmail method)
+2. `tldr/src/hooks/useEmail.ts` (MODIFIED - added sendEmail mutation)
+3. `tldr/src/components/dashboard/ComposeEmailModal.tsx` (MODIFIED - wired to API)
+4. `tldr/src/components/dashboard/EmailDetail.tsx` (MODIFIED - added mailboxId prop)
+5. `tldr/src/pages/Inbox.tsx` (MODIFIED - passes mailboxId to EmailDetail)
+6. `tldr/docs/EMAIL_SENDING_FEATURE.md` (NEW - this document)

@@ -89,7 +89,7 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 #### 5. Test OAuth Flow
 
 1. Start backend: `cd tldr-backend && npm run start:dev`
-2. Start frontend: `cd Ga03 && npm run dev`
+2. Start frontend: `cd tldr && npm run dev`
 3. Go to http://localhost:5173/login
 4. Click **"Sign in with Google"**
 5. Approve permissions on Google consent screen

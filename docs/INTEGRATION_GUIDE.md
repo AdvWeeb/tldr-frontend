@@ -1,6 +1,6 @@
 # Frontend-Backend Integration Guide
 
-This document explains how the frontend (Ga03) integrates with the backend (tldr-backend).
+This document explains how the frontend (tldr) integrates with the backend (tldr-backend).
 
 ## Architecture Overview
 
@@ -37,7 +37,7 @@ Backend will run on `http://localhost:3000` with Swagger docs at `http://localho
 ### 2. Frontend Setup
 
 ```bash
-cd Ga03
+cd tldr
 
 # Install dependencies
 npm install

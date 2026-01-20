@@ -2,7 +2,7 @@
 
 A modern, full-stack email client application with Gmail integration built with React, TypeScript, NestJS, and PostgreSQL. This project features complete OAuth 2.0 authentication with PKCE, real-time email synchronization, and the ability to send, receive, and manage emails through the Gmail API.
 
-**Live Demo:** [https://ga03.pages.dev/](https://ga03.pages.dev/)
+**Live Demo:** [https://tldr.pages.dev/](https://tldr.pages.dev/)
 
 **Video:** [https://youtu.be/ipUBGLoWaoQ](https://youtu.be/ipUBGLoWaoQ)
 
@@ -188,7 +188,7 @@ npm run start:prod
 
 **Frontend:**
 ```bash
-cd Ga03
+cd tldr
 npm run build
 ```
 
@@ -261,9 +261,9 @@ Built with shadcn/ui, the interface includes:
 
 ## 📁 Project Structure
 
-### Frontend (`Ga03/`)
+### Frontend (`tldr/`)
 ```
-Ga03/
+tldr/
 ├── src/
 │   ├── components/
 │   │   ├── dashboard/
@@ -412,7 +412,7 @@ npm run test
 npm run test:e2e
 
 # Frontend tests
-cd Ga03
+cd tldr
 npm run test
 ```
 

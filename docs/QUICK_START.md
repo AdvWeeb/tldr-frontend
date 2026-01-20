@@ -20,7 +20,7 @@ cp .env.example .env  # Configure environment
 npm run start:dev
 
 # Terminal 2 - Start frontend
-cd Ga03
+cd tldr
 npm install
 cp .env.example .env  # Default config works for dev
 npm run dev
@@ -37,7 +37,7 @@ Copy-Item .env.example .env
 npm run start:dev
 
 # New terminal
-cd ..\Ga03
+cd ..\tldr
 npm install
 Copy-Item .env.example .env
 npm run dev
@@ -98,7 +98,7 @@ PORT=3000
 NODE_ENV=development
 ```
 
-### Frontend (Ga03/.env)
+### Frontend (tldr/.env)
 
 ```env
 # API Base URL
