@@ -1,4 +1,4 @@
-import { Filter, SortAsc, SortDesc, X } from 'lucide-react';
+import { Filter, SortAsc, SortDesc, X, Star, Paperclip, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUIStore, type SortBy } from '@/store/uiStore';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export function FilteringSortingToolbar() {
   const {
@@ -122,7 +123,8 @@ export function FilteringSortingToolbar() {
               onCheckedChange={(checked) => handleToggleFilter('isStarred', checked || undefined)}
               className="font-medium"
             >
-              ⭐ Starred
+              <Star className="h-4 w-4 mr-2 text-[#FF6B6B]" />
+              Starred
             </DropdownMenuCheckboxItem>
 
             <DropdownMenuCheckboxItem
@@ -130,7 +132,8 @@ export function FilteringSortingToolbar() {
               onCheckedChange={(checked) => handleToggleFilter('hasAttachments', checked || undefined)}
               className="font-medium"
             >
-              📎 Has Attachments
+              <Paperclip className="h-4 w-4 mr-2" />
+              Has Attachments
             </DropdownMenuCheckboxItem>
 
             <DropdownMenuCheckboxItem
@@ -138,7 +141,8 @@ export function FilteringSortingToolbar() {
               onCheckedChange={(checked) => handleToggleFilter('isSnoozed', checked || undefined)}
               className="font-medium"
             >
-              ⏰ Snoozed
+              <Clock className="h-4 w-4 mr-2" />
+              Snoozed
             </DropdownMenuCheckboxItem>
 
             <DropdownMenuSeparator className="bg-[#0A0A0A]/10" />
@@ -211,18 +215,21 @@ export function FilteringSortingToolbar() {
               </Badge>
             )}
             {filters.isStarred && (
-              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white">
-                ⭐ Starred
+              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5 text-[#FF6B6B]" />
+                Starred
               </Badge>
             )}
             {filters.hasAttachments && (
-              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white">
-                📎 Attachments
+              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white flex items-center gap-1.5">
+                <Paperclip className="h-3.5 w-3.5" />
+                Attachments
               </Badge>
             )}
             {filters.isSnoozed && (
-              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white">
-                ⏰ Snoozed
+              <Badge className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                Snoozed
               </Badge>
             )}
             {filters.category && (

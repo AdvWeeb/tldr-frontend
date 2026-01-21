@@ -1,4 +1,4 @@
-import { Mail, AlertCircle, Loader2, BrainCircuit, Search as SearchIcon } from 'lucide-react';
+import { Mail, AlertCircle, Loader2, BrainCircuit, Search as SearchIcon, Star, Paperclip } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useEmailSearch, useSemanticSearch } from '@/hooks/useEmail';
 import { Card } from '@/components/ui/card';
@@ -224,15 +224,17 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
 
                   {/* Attachments */}
                   {email.hasAttachments && (
-                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white">
-                      📎 Attachments
+                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white flex items-center gap-1.5">
+                      <Paperclip className="h-3 w-3" />
+                      Attachments
                     </Badge>
                   )}
 
                   {/* Starred */}
                   {email.isStarred && (
-                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white">
-                      ⭐ Starred
+                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white flex items-center gap-1.5">
+                      <Star className="h-3 w-3 text-[#FF6B6B]" />
+                      Starred
                     </Badge>
                   )}
                 </div>
