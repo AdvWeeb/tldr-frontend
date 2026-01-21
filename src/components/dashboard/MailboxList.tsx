@@ -12,11 +12,13 @@ import {
   Edit,
   Tag,
   Clock,
+  LogOut,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ComposeEmailModal } from './ComposeEmailModal';
-import { useMailboxStats, useMailboxLabels } from '@/hooks/useEmail';
+import { useMailboxStats, useMailboxLabels, useEmailMutations } from '@/hooks/useEmail';
 
 interface MailboxListProps {
   mailboxes: any[]; // Backend mailbox type
@@ -52,6 +54,20 @@ export function MailboxList({
 
   const { data: stats } = useMailboxStats(selectedMailboxId);
   const { data: labels } = useMailboxLabels(selectedMailboxId);
+  const { disconnectMailbox, syncMailbox } = useEmailMutations();
+
+  const handleDisconnect = () => {
+    if (selectedMailboxId && confirm('Disconnect this mailbox? You can reconnect it later.')) {
+      disconnectMailbox.mutate(selectedMailboxId);
+    }
+  };
+
+  const handleSync = () => {
+    if (selectedMailboxId) {
+      // Force full sync to fetch ALL emails (including those with custom labels)
+      syncMailbox.mutate({ mailboxId: selectedMailboxId, fullSync: true });
+    }
+  };
 
   // Mail folders with their counts
   const folders = [
@@ -73,12 +89,35 @@ export function MailboxList({
     <div className="flex flex-col h-full bg-[#FFF8F0]">
       {/* Account Header */}
       <div className="p-4 border-b-2 border-[#0A0A0A]/10">
-        <div className="mb-4">
-          <div className="font-semibold text-[#0A0A0A] text-base">
-            {currentMailbox?.email?.split('@')[0] || 'Baked Design'}
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <div className="font-bold text-[#0A0A0A] text-lg" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {currentMailbox?.email?.split('@')[0] || 'Baked Design'}
+            </div>
+            <div className="text-sm text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {currentMailbox?.email || 'work@baked.design'}
+            </div>
           </div>
-          <div className="text-sm text-[#0A0A0A]/60">
-            {currentMailbox?.email || 'work@baked.design'}
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSync}
+              disabled={syncMailbox.isPending}
+              className="h-8 w-8 text-[#0A0A0A]/50 hover:text-[#10F9A0] hover:bg-[#10F9A0]/10"
+              title="Sync mailbox"
+            >
+              <RefreshCw className={`h-4 w-4 ${syncMailbox.isPending ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDisconnect}
+              className="h-8 w-8 text-[#0A0A0A]/50 hover:text-red-500 hover:bg-red-50"
+              title="Disconnect mailbox"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 

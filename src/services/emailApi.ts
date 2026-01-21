@@ -266,8 +266,8 @@ export const emailApi = {
     return response.data;
   },
 
-  syncMailbox: async (mailboxId: number): Promise<void> => {
-    await apiClient.post(`/mailboxes/${mailboxId}/sync`);
+  syncMailbox: async (mailboxId: number, fullSync = false): Promise<void> => {
+    await apiClient.post(`/mailboxes/${mailboxId}/sync${fullSync ? '?full=true' : ''}`);
   },
 
   getMailboxStats: async (mailboxId: number): Promise<MailboxStats> => {

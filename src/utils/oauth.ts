@@ -89,22 +89,23 @@ export function buildGoogleOAuthUrl(
  * @param codeVerifier - PKCE code verifier
  */
 export function storeOAuthState(state: string, codeVerifier: string): void {
-  sessionStorage.setItem('oauth_state', state);
-  sessionStorage.setItem('oauth_code_verifier', codeVerifier);
+  // Use localStorage instead of sessionStorage to persist across redirects
+  localStorage.setItem('oauth_state', state);
+  localStorage.setItem('oauth_code_verifier', codeVerifier);
 }
 
 /**
- * Retrieve and validate OAuth state from sessionStorage
+ * Retrieve and validate OAuth state from localStorage
  * @param receivedState - State parameter from OAuth callback
  * @returns Code verifier if state is valid, null otherwise
  */
 export function retrieveAndValidateOAuthState(receivedState: string): string | null {
-  const storedState = sessionStorage.getItem('oauth_state');
-  const codeVerifier = sessionStorage.getItem('oauth_code_verifier');
+  const storedState = localStorage.getItem('oauth_state');
+  const codeVerifier = localStorage.getItem('oauth_code_verifier');
 
   // Clean up
-  sessionStorage.removeItem('oauth_state');
-  sessionStorage.removeItem('oauth_code_verifier');
+  localStorage.removeItem('oauth_state');
+  localStorage.removeItem('oauth_code_verifier');
 
   if (!storedState || !codeVerifier) {
     console.error('OAuth state not found in session');

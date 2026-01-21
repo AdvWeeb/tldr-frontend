@@ -10,7 +10,7 @@ import { SearchResults } from '@/components/search/SearchResults';
 import { useMailboxes, useEmails, useEmail, useEmailMutations } from '@/hooks/useEmail';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { useUIStore } from '@/store/uiStore';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function Inbox() {
@@ -303,13 +303,23 @@ export function Inbox() {
         </div>
       ) : mailboxes.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="max-w-md text-center space-y-4">
+          <div className="max-w-md text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#10F9A0]/10 border-2 border-[#10F9A0] rounded-full">
+              <Mail className="h-10 w-10 text-[#10F9A0]" />
+            </div>
             <h2 className="text-3xl font-bold italic text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
-              No emails found
+              Connect your Gmail
             </h2>
             <p className="text-base text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              Your inbox is empty
+              Get started by connecting your Gmail account to see your emails
             </p>
+            <Button
+              onClick={() => window.location.href = '/login'}
+              className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-3 font-bold uppercase tracking-wide shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] transition-all"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Connect Gmail
+            </Button>
           </div>
         </div>
       ) : viewMode === 'SEARCH_VIEW' ? (

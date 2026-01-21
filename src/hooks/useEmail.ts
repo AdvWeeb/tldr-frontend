@@ -33,6 +33,8 @@ export const useMailboxLabels = (mailboxId: number | null) => {
     queryFn: () => emailApi.getMailboxLabels(mailboxId!),
     enabled: !!mailboxId,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2, // Retry on failure
+    retryDelay: 1000,
   });
 };
 
@@ -100,7 +102,8 @@ export const useEmailMutations = () => {
   });
 
   const syncMailbox = useMutation({
-    mutationFn: (mailboxId: number) => emailApi.syncMailbox(mailboxId),
+    mutationFn: ({ mailboxId, fullSync = false }: { mailboxId: number; fullSync?: boolean }) => 
+      emailApi.syncMailbox(mailboxId, fullSync),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] });
       queryClient.invalidateQueries({ queryKey: ['emails'] });
@@ -112,6 +115,14 @@ export const useEmailMutations = () => {
       emailApi.connectGmailMailbox(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mailboxes'] });
+    },
+  });
+
+  const disconnectMailbox = useMutation({
+    mutationFn: (mailboxId: number) => emailApi.disconnectMailbox(mailboxId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mailboxes'] });
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
     },
   });
 
@@ -146,6 +157,7 @@ export const useEmailMutations = () => {
     deleteEmail,
     syncMailbox,
     connectMailbox,
+    disconnectMailbox,
     sendEmail,
     summarizeEmail,
     moveEmailToColumn,
