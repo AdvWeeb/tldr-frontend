@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Mail, Search, X, Inbox, Kanban, LayoutDashboard, Zap } from 'lucide-react';
+import { Mail, Search, X, Inbox, Kanban, Menu, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -106,17 +106,6 @@ export function Navigation() {
           {/* Navigation Tabs (only when authenticated) */}
           {isAuthenticated && (
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-              <Link
-                to="/"
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition-all duration-200 border-2 ${
-                  location.pathname === '/'
-                    ? 'bg-[#10F9A0] text-[#0A0A0A] border-[#0A0A0A] shadow-[3px_3px_0px_0px_rgba(10,10,10,0.2)]'
-                    : 'bg-white text-[#0A0A0A]/60 border-transparent hover:bg-[#FFF8F0] hover:text-[#0A0A0A]'
-                }`}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
               <Link
                 to="/inbox"
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition-all duration-200 border-2 ${
@@ -229,7 +218,7 @@ export function Navigation() {
                       variant="outline"
                       className="lg:hidden border-2 border-[#0A0A0A]/20 rounded-xl hover:bg-[#FFF8F0] hover:border-[#0A0A0A]/40"
                     >
-                      <LayoutDashboard className="h-4 w-4" />
+                      <Menu className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
@@ -238,12 +227,6 @@ export function Navigation() {
                   >
                     <DropdownMenuLabel className="font-semibold text-[#0A0A0A]">Navigation</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-[#0A0A0A]/10" />
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to="/" className="font-medium flex items-center gap-2">
-                        <LayoutDashboard className="h-4 w-4" />
-                        Dashboard
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
                       <Link to="/inbox" className="font-medium flex items-center gap-2">
                         <Inbox className="h-4 w-4" />
