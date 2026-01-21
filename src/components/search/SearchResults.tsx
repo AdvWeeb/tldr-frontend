@@ -53,9 +53,9 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-4">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">Searching emails...</p>
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="h-10 w-10 animate-spin text-[#10F9A0]" />
+        <p className="text-sm font-medium text-[#0A0A0A]/60">Searching emails...</p>
       </div>
     );
   }
@@ -63,14 +63,19 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
   // Error state
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-4">
-        <AlertCircle className="h-12 w-12 text-destructive" />
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Failed to fetch results</h3>
-          <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col items-center justify-center py-20 space-y-6">
+        <div className="p-6 bg-[#FF6B6B]/10 border-2 border-[#FF6B6B] rounded-[2rem]">
+          <AlertCircle className="h-12 w-12 text-[#FF6B6B]" />
+        </div>
+        <div className="text-center space-y-3">
+          <h3 className="text-xl font-bold text-[#0A0A0A]">Failed to fetch results</h3>
+          <p className="text-sm text-[#0A0A0A]/60">
             {error instanceof Error ? error.message : 'Please try again.'}
           </p>
-          <Button variant="outline" onClick={() => window.location.reload()}>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-2 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200"
+          >
             Retry
           </Button>
         </div>
@@ -81,14 +86,19 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
   // Empty state
   if (!data || data.data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-4">
-        <Mail className="h-12 w-12 text-muted-foreground" />
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">No emails match your search</h3>
-          <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col items-center justify-center py-20 space-y-6">
+        <div className="p-6 bg-[#FFF8F0] border-2 border-[#0A0A0A]/10 rounded-[2rem]">
+          <Mail className="h-12 w-12 text-[#0A0A0A]/30" />
+        </div>
+        <div className="text-center space-y-3">
+          <h3 className="text-xl font-bold text-[#0A0A0A]">No emails match your search</h3>
+          <p className="text-sm text-[#0A0A0A]/60">
             Try adjusting your search query or filters
           </p>
-          <Button variant="outline" onClick={clearSearch}>
+          <Button 
+            onClick={clearSearch}
+            className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-2 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200"
+          >
             Clear Search
           </Button>
         </div>
@@ -97,89 +107,102 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Search Results Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-bold">Search Results</h2>
-          <p className="text-sm text-muted-foreground">
-            Found {data.meta.totalResults} {data.meta.totalResults === 1 ? 'email' : 'emails'} matching "{searchQuery}"
+        <div className="space-y-2">
+          <h2 className="text-3xl font-bold text-[#0A0A0A]">Search Results</h2>
+          <p className="text-sm text-[#0A0A0A]/60 font-medium">
+            Found {data.meta.totalResults} {data.meta.totalResults === 1 ? 'email' : 'emails'} matching "<span className="font-semibold text-[#0A0A0A]">{searchQuery}</span>"
           </p>
         </div>
         
-        <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
+        <div className="flex items-center gap-2 bg-[#FFF8F0] p-1.5 rounded-full border-2 border-[#0A0A0A]/10">
           <Button 
-            variant={searchMode === 'semantic' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setSearchMode('semantic')}
-            className={cn("gap-2", searchMode === 'semantic' && "bg-white shadow-sm")}
+            className={cn(
+              "gap-2 rounded-full font-semibold transition-all duration-200",
+              searchMode === 'semantic' 
+                ? "bg-[#C77DFF] text-white border-2 border-[#0A0A0A] shadow-[2px_2px_0px_0px_rgba(10,10,10,1)] hover:bg-[#C77DFF]" 
+                : "bg-transparent hover:bg-white text-[#0A0A0A] border-2 border-transparent"
+            )}
           >
-            <BrainCircuit className="h-4 w-4 text-purple-600" />
+            <BrainCircuit className="h-4 w-4" />
             AI Semantic
           </Button>
           <Button 
-            variant={searchMode === 'fuzzy' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setSearchMode('fuzzy')}
-            className={cn("gap-2", searchMode === 'fuzzy' && "bg-white shadow-sm")}
+            className={cn(
+              "gap-2 rounded-full font-semibold transition-all duration-200",
+              searchMode === 'fuzzy' 
+                ? "bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] shadow-[2px_2px_0px_0px_rgba(10,10,10,1)] hover:bg-[#10F9A0]" 
+                : "bg-transparent hover:bg-white text-[#0A0A0A] border-2 border-transparent"
+            )}
           >
             <SearchIcon className="h-4 w-4" />
             Fuzzy
           </Button>
         </div>
 
-        <Button variant="ghost" onClick={clearSearch}>
+        <Button 
+          onClick={clearSearch}
+          className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 py-2 font-semibold hover:bg-[#FFF8F0] transition-colors"
+        >
           Back to Board
         </Button>
       </div>
 
       {/* Results List */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {data.data.map((email: any) => (
           <Card
             key={email.id}
-            className="p-4 cursor-pointer hover:bg-accent transition-colors"
+            className="p-5 cursor-pointer border-2 border-[#0A0A0A]/10 rounded-xl hover:border-[#10F9A0] hover:shadow-[4px_4px_0px_0px_rgba(16,249,160,1)] hover:-translate-y-0.5 transition-all duration-200"
             onClick={() => onEmailClick(email.id)}
           >
             <div className="flex items-start gap-4">
               {/* Avatar */}
-              <Avatar className="h-10 w-10">
-                <AvatarFallback>
+              <Avatar className="h-11 w-11 border-2 border-[#0A0A0A]">
+                <AvatarFallback className="bg-[#10F9A0] text-[#0A0A0A] font-semibold">
                   {email.fromName ? email.fromName[0].toUpperCase() : email.fromEmail[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
               {/* Email Content */}
-              <div className="flex-1 min-w-0 space-y-2">
+              <div className="flex-1 min-w-0 space-y-2.5">
                 {/* Header Row */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-semibold truncate">
+                    <span className="font-semibold truncate text-[#0A0A0A]">
                       {email.fromName || email.fromEmail}
                     </span>
                     {!email.isRead && (
-                      <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                      <div className="h-2 w-2 rounded-full bg-[#10F9A0] border border-[#0A0A0A] flex-shrink-0" />
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  <span className="text-xs text-[#0A0A0A]/50 whitespace-nowrap font-medium">
                     {formatDate(email.receivedAt)}
                   </span>
                 </div>
 
                 {/* Subject */}
-                <p className="font-medium text-sm truncate">{email.subject || '(No subject)'}</p>
+                <p className="font-semibold text-sm truncate text-[#0A0A0A]">{email.subject || '(No subject)'}</p>
 
                 {/* Snippet or AI Summary */}
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="text-sm text-[#0A0A0A]/70 line-clamp-2 leading-relaxed">
                   {email.aiSummary || email.snippet || 'No content preview'}
                 </p>
 
                 {/* Badges Row */}
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Relevance Score */}
-                  <Badge variant="outline" className={cn(
-                    "text-xs",
-                    searchMode === 'semantic' ? "border-purple-200 bg-purple-50 text-purple-700" : "border-blue-200 bg-blue-50 text-blue-700"
+                  <Badge className={cn(
+                    "text-xs font-semibold border-2",
+                    searchMode === 'semantic' 
+                      ? "border-[#C77DFF] bg-[#C77DFF]/10 text-[#0A0A0A] hover:bg-[#C77DFF]/10" 
+                      : "border-[#10F9A0] bg-[#10F9A0]/10 text-[#0A0A0A] hover:bg-[#10F9A0]/10"
                   )}>
                     {searchMode === 'semantic' 
                       ? `${Math.round((email.similarity || 0) * 100)}% relevance` 
@@ -188,30 +211,27 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
                   </Badge>
 
                   {/* Category */}
-                  <Badge
-                    variant="secondary"
-                    className="text-xs capitalize"
-                  >
+                  <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] capitalize hover:bg-white">
                     {email.category}
                   </Badge>
 
                   {/* Task Status */}
                   {email.taskStatus !== 'none' && (
-                    <Badge variant="default" className="text-xs capitalize">
+                    <Badge className="text-xs font-semibold bg-[#0A0A0A] text-white border-2 border-[#0A0A0A] capitalize hover:bg-[#0A0A0A]">
                       {email.taskStatus.replace('_', ' ')}
                     </Badge>
                   )}
 
                   {/* Attachments */}
                   {email.hasAttachments && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white">
                       📎 Attachments
                     </Badge>
                   )}
 
                   {/* Starred */}
                   {email.isStarred && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs font-semibold bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white">
                       ⭐ Starred
                     </Badge>
                   )}
@@ -224,7 +244,7 @@ export function SearchResults({ onEmailClick }: SearchResultsProps) {
 
       {/* Pagination Info */}
       {data.meta.totalPages > 1 && (
-        <div className="text-center text-sm text-muted-foreground pt-4">
+        <div className="text-center text-sm text-[#0A0A0A]/60 font-medium pt-4 px-4 py-2 bg-[#FFF8F0] rounded-full inline-block mx-auto">
           Page {data.meta.page} of {data.meta.totalPages}
         </div>
       )}

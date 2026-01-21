@@ -287,7 +287,7 @@ export function ComposeEmailModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0A0A]/60 backdrop-blur-sm p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -299,35 +299,35 @@ export function ComposeEmailModal({
     >
       <div 
         ref={modalRef}
-        className="bg-white w-full max-w-3xl rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200"
+        className="bg-white w-full max-w-3xl rounded-[2rem] border-2 border-[#0A0A0A] shadow-[8px_8px_0px_0px_rgba(10,10,10,1)] overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gray-100 px-4 py-3 border-b flex justify-between items-center">
-          <h2 id="compose-email-title" className="text-lg font-semibold">{getTitle()}</h2>
+        <div className="bg-[#FFF8F0] px-6 py-4 border-b-2 border-[#0A0A0A]/10 flex justify-between items-center">
+          <h2 id="compose-email-title" className="text-2xl font-bold text-[#0A0A0A]">{getTitle()}</h2>
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={onClose}
-            className="h-8 w-8 rounded-full hover:bg-gray-200"
+            className="h-9 w-9 rounded-full hover:bg-white border-2 border-transparent hover:border-[#0A0A0A] transition-all"
             aria-label="Close compose email modal"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
         {/* Error Messages */}
         {errors.general && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 mx-4 mt-4 rounded-md text-sm">
+          <div className="bg-[#FF6B6B]/10 border-2 border-[#FF6B6B] text-[#0A0A0A] px-5 py-3 mx-6 mt-6 rounded-xl text-sm font-semibold">
             {errors.general}
           </div>
         )}
 
         {/* Form */}
-        <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+        <div className="p-6 space-y-4 flex-1 overflow-y-auto">
           {/* To Field */}
-          <div className="flex items-start gap-2">
-            <Label htmlFor="to" className="w-12 text-right text-sm text-gray-600 pt-2">To</Label>
+          <div className="flex items-start gap-3">
+            <Label htmlFor="to" className="w-16 text-right text-sm font-semibold text-[#0A0A0A]/60 pt-2.5">To</Label>
             <div className="flex-1">
               <Input
                 id="to"
@@ -338,12 +338,12 @@ export function ComposeEmailModal({
                   if (errors.to) setErrors(prev => ({ ...prev, to: '' }));
                 }}
                 placeholder="Recipients (comma-separated)"
-                className={`border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-blue-500 transition-colors ${errors.to ? 'border-red-500' : ''}`}
+                className={`border-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-[#10F9A0] transition-colors font-medium ${errors.to ? 'border-[#FF6B6B]' : 'border-[#0A0A0A]/20'}`}
                 aria-invalid={!!errors.to}
                 aria-describedby={errors.to ? 'to-error' : undefined}
               />
               {errors.to && (
-                <p id="to-error" className="text-red-600 text-xs mt-1">{errors.to}</p>
+                <p id="to-error" className="text-[#FF6B6B] text-xs mt-1.5 font-semibold">{errors.to}</p>
               )}
               {!showCc && (
                 <Button
@@ -351,9 +351,9 @@ export function ComposeEmailModal({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowCc(true)}
-                  className="text-xs text-blue-600 hover:text-blue-700 mt-1"
+                  className="text-xs font-semibold text-[#0A0A0A] hover:text-[#10F9A0] mt-1.5 px-0"
                 >
-                  Cc
+                  + Add Cc
                 </Button>
               )}
             </div>
@@ -361,8 +361,8 @@ export function ComposeEmailModal({
 
           {/* Cc Field */}
           {showCc && (
-            <div className="flex items-start gap-2">
-              <Label htmlFor="cc" className="w-12 text-right text-sm text-gray-600 pt-2">Cc</Label>
+            <div className="flex items-start gap-3">
+              <Label htmlFor="cc" className="w-16 text-right text-sm font-semibold text-[#0A0A0A]/60 pt-2.5">Cc</Label>
               <div className="flex-1">
                 <Input
                   id="cc"
@@ -373,20 +373,20 @@ export function ComposeEmailModal({
                     if (errors.cc) setErrors(prev => ({ ...prev, cc: '' }));
                   }}
                   placeholder="Carbon copy (comma-separated)"
-                  className={`flex-1 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-blue-500 transition-colors ${errors.cc ? 'border-red-500' : ''}`}
+                  className={`flex-1 border-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-[#10F9A0] transition-colors font-medium ${errors.cc ? 'border-[#FF6B6B]' : 'border-[#0A0A0A]/20'}`}
                   aria-invalid={!!errors.cc}
                   aria-describedby={errors.cc ? 'cc-error' : undefined}
                 />
                 {errors.cc && (
-                  <p id="cc-error" className="text-red-600 text-xs mt-1">{errors.cc}</p>
+                  <p id="cc-error" className="text-[#FF6B6B] text-xs mt-1.5 font-semibold">{errors.cc}</p>
                 )}
               </div>
             </div>
           )}
 
           {/* Subject Field */}
-          <div className="flex items-start gap-2">
-            <Label htmlFor="subject" className="w-12 text-right text-sm text-gray-600 pt-2">Subject</Label>
+          <div className="flex items-start gap-3">
+            <Label htmlFor="subject" className="w-16 text-right text-sm font-semibold text-[#0A0A0A]/60 pt-2.5">Subject</Label>
             <div className="flex-1">
               <Input
                 id="subject"
@@ -398,21 +398,21 @@ export function ComposeEmailModal({
                 }}
                 placeholder="Subject"
                 maxLength={998}
-                className={`flex-1 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-blue-500 transition-colors ${errors.subject ? 'border-red-500' : ''}`}
+                className={`flex-1 border-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-[#10F9A0] transition-colors font-medium ${errors.subject ? 'border-[#FF6B6B]' : 'border-[#0A0A0A]/20'}`}
                 aria-invalid={!!errors.subject}
                 aria-describedby={errors.subject ? 'subject-error' : undefined}
               />
               {errors.subject && (
-                <p id="subject-error" className="text-red-600 text-xs mt-1">{errors.subject}</p>
+                <p id="subject-error" className="text-[#FF6B6B] text-xs mt-1.5 font-semibold">{errors.subject}</p>
               )}
               {subject.length > 0 && (
-                <p className="text-xs text-gray-500 mt-1">{subject.length}/998 characters</p>
+                <p className="text-xs text-[#0A0A0A]/50 mt-1.5 font-medium">{subject.length}/998 characters</p>
               )}
             </div>
           </div>
 
           {/* Body Field */}
-          <div className="pt-2">
+          <div className="pt-3">
             <textarea
               value={body}
               onChange={(e) => {
@@ -420,49 +420,53 @@ export function ComposeEmailModal({
                 if (errors.body) setErrors(prev => ({ ...prev, body: '' }));
               }}
               placeholder="Type your message here..."
-              className={`w-full min-h-[300px] p-2 resize-none focus:outline-none border rounded ${errors.body ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full min-h-[300px] p-4 resize-none focus:outline-none border-2 rounded-xl font-medium text-[#0A0A0A] placeholder:text-[#0A0A0A]/40 transition-colors ${errors.body ? 'border-[#FF6B6B] focus:border-[#FF6B6B]' : 'border-[#0A0A0A]/20 focus:border-[#10F9A0]'}`}
               aria-invalid={!!errors.body}
               aria-describedby={errors.body ? 'body-error' : undefined}
             />
             {errors.body && (
-              <p id="body-error" className="text-red-600 text-xs mt-1">{errors.body}</p>
+              <p id="body-error" className="text-[#FF6B6B] text-xs mt-1.5 font-semibold">{errors.body}</p>
             )}
           </div>
 
           {/* Attachments Display */}
           {attachments.length > 0 && (
-            <div className="pt-2 border-t">
-              <Label className="text-sm text-gray-600 mb-2 block">
+            <div className="pt-4 border-t-2 border-[#0A0A0A]/10">
+              <Label className="text-sm font-semibold uppercase tracking-wide text-[#0A0A0A]/60 mb-3 block">
                 Attachments ({attachments.length})
               </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {attachments.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-3 p-3 bg-white border-2 border-[#0A0A0A]/10 rounded-xl hover:border-[#10F9A0] hover:shadow-[2px_2px_0px_0px_rgba(16,249,160,1)] transition-all duration-200"
                   >
                     {file.type.startsWith('image/') ? (
-                      <ImageIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                      <div className="h-10 w-10 bg-[#C77DFF] border-2 border-[#0A0A0A] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <ImageIcon className="h-5 w-5 text-white" />
+                      </div>
                     ) : (
-                      <FileIcon className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                      <div className="h-10 w-10 bg-[#10F9A0] border-2 border-[#0A0A0A] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileIcon className="h-5 w-5 text-[#0A0A0A]" />
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                      <p className="text-sm font-semibold truncate text-[#0A0A0A]">{file.name}</p>
+                      <p className="text-xs text-[#0A0A0A]/60 font-medium">{formatFileSize(file.size)}</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 flex-shrink-0"
+                      className="h-7 w-7 flex-shrink-0 rounded-full hover:bg-[#FF6B6B]/10"
                       onClick={() => removeAttachment(index)}
                       title="Remove attachment"
                     >
-                      <XCircle className="h-4 w-4 text-red-500" />
+                      <XCircle className="h-4 w-4 text-[#FF6B6B]" />
                     </Button>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-[#0A0A0A]/50 mt-3 font-medium">
                 Total size: {formatFileSize(attachments.reduce((sum, f) => sum + f.size, 0))} / 25 MB
               </p>
             </div>
@@ -470,8 +474,8 @@ export function ComposeEmailModal({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-4 py-3 border-t flex justify-between items-center">
-          <div className="flex gap-1">
+        <div className="bg-[#FFF8F0] px-6 py-4 border-t-2 border-[#0A0A0A]/10 flex justify-between items-center">
+          <div className="flex gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -492,7 +496,7 @@ export function ComposeEmailModal({
               variant="ghost"
               size="icon"
               title="Attach file"
-              className="h-8 w-8"
+              className="h-9 w-9 rounded-full hover:bg-white border-2 border-transparent hover:border-[#0A0A0A] transition-all"
               onClick={() => fileInputRef.current?.click()}
             >
               <Paperclip className="h-4 w-4" />
@@ -501,22 +505,22 @@ export function ComposeEmailModal({
               variant="ghost"
               size="icon"
               title="Insert image"
-              className="h-8 w-8"
+              className="h-9 w-9 rounded-full hover:bg-white border-2 border-transparent hover:border-[#0A0A0A] transition-all"
               onClick={() => imageInputRef.current?.click()}
             >
               <ImageIcon className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
-              variant="outline"
               onClick={onClose}
+              className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 py-2 font-semibold hover:bg-[#FFF8F0] transition-colors"
             >
               Discard
             </Button>
             <Button
               onClick={handleSend}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-2 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] disabled:hover:scale-100 disabled:hover:translate-y-0"
               disabled={sendEmail.isPending}
             >
               <Send className="h-4 w-4 mr-2" />

@@ -107,10 +107,10 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
         <div className="bg-[#FFF8F0] p-8 rounded-[2rem] border-2 border-[#0A0A0A]/10 mb-6">
             <CornerUpLeft className="h-12 w-12 text-[#0A0A0A]/30" />
         </div>
-        <h3 className="font-bold text-2xl mb-3 italic text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+        <h3 className="font-bold text-2xl mb-3 text-[#0A0A0A]">
           Select an email to read
         </h3>
-        <p className="max-w-xs text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+        <p className="max-w-xs text-[#0A0A0A]/60">
           Click on an email from the list to view its contents here.
         </p>
       </div>
@@ -215,7 +215,7 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
       {/* Email Header */}
       <div className="p-8">
         <div className="flex items-start justify-between mb-8">
-           <h1 className="text-3xl font-bold italic leading-tight text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+           <h1 className="text-3xl font-bold italic leading-tight text-[#0A0A0A]">
              {email.subject || '(No subject)'}
            </h1>
            {email.labels && email.labels.length > 0 && (
