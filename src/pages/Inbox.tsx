@@ -8,6 +8,7 @@ import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
 import { FilteringSortingToolbar } from '@/components/toolbar/FilteringSortingToolbar';
 import { SearchResults } from '@/components/search/SearchResults';
 import { useMailboxes, useEmails, useEmail, useEmailMutations } from '@/hooks/useEmail';
+import { useInitiateGoogleOAuth } from '@/hooks/useAuth';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { useUIStore } from '@/store/uiStore';
 import { Menu, X, Mail } from 'lucide-react';
@@ -28,6 +29,13 @@ export function Inbox() {
 
   // Data Fetching
   const { data: mailboxes = [], isLoading: isLoadingMailboxes } = useMailboxes();
+  const initiateGoogleOAuth = useInitiateGoogleOAuth();
+
+  const handleConnectGmail = () => {
+    // Set purpose to mailbox connection (not login)
+    localStorage.setItem('oauth_purpose', 'mailbox_connection');
+    initiateGoogleOAuth.mutate();
+  };
   
   // Debug mailboxes
   useEffect(() => {
@@ -314,11 +322,12 @@ export function Inbox() {
               Get started by connecting your Gmail account to see your emails
             </p>
             <Button
-              onClick={() => window.location.href = '/login'}
+              onClick={handleConnectGmail}
+              disabled={initiateGoogleOAuth.isPending}
               className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-3 font-bold uppercase tracking-wide shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] transition-all"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              Connect Gmail
+              {initiateGoogleOAuth.isPending ? 'Connecting...' : 'Connect Gmail'}
             </Button>
           </div>
         </div>

@@ -89,35 +89,35 @@ export function MailboxList({
     <div className="flex flex-col h-full bg-[#FFF8F0]">
       {/* Account Header */}
       <div className="p-4 border-b-2 border-[#0A0A0A]/10">
-        <div className="mb-4 flex items-start justify-between">
-          <div>
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-1">
             <div className="font-bold text-[#0A0A0A] text-lg" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               {currentMailbox?.email?.split('@')[0] || 'Baked Design'}
             </div>
-            <div className="text-sm text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              {currentMailbox?.email || 'work@baked.design'}
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSync}
+                disabled={syncMailbox.isPending}
+                className="h-7 w-7 text-[#0A0A0A]/50 hover:text-[#10F9A0] hover:bg-[#10F9A0]/10"
+                title="Sync mailbox"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${syncMailbox.isPending ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDisconnect}
+                className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
+                title="Disconnect mailbox"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
             </div>
           </div>
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSync}
-              disabled={syncMailbox.isPending}
-              className="h-8 w-8 text-[#0A0A0A]/50 hover:text-[#10F9A0] hover:bg-[#10F9A0]/10"
-              title="Sync mailbox"
-            >
-              <RefreshCw className={`h-4 w-4 ${syncMailbox.isPending ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDisconnect}
-              className="h-8 w-8 text-[#0A0A0A]/50 hover:text-red-500 hover:bg-red-50"
-              title="Disconnect mailbox"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+          <div className="text-sm text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            {currentMailbox?.email || 'work@baked.design'}
           </div>
         </div>
 

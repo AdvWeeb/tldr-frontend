@@ -145,10 +145,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async (revokeAll: boolean = false) => {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        await authApi.logout(refreshToken, revokeAll);
-      }
+      // Call logout endpoint - backend will clear the HttpOnly cookie
+      await authApi.logout('', revokeAll);
     },
     onSuccess: () => {
       // Clear auth store
