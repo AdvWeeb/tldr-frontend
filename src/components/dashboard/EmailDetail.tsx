@@ -103,12 +103,16 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   
   if (!email) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-muted-foreground p-8 text-center bg-gray-50/50">
-        <div className="bg-gray-100 p-6 rounded-full mb-4">
-            <CornerUpLeft className="h-10 w-10 text-gray-400" />
+      <div className="flex h-full flex-col items-center justify-center p-8 text-center bg-white">
+        <div className="bg-[#FFF8F0] p-8 rounded-[2rem] border-2 border-[#0A0A0A]/10 mb-6">
+            <CornerUpLeft className="h-12 w-12 text-[#0A0A0A]/30" />
         </div>
-        <h3 className="font-semibold text-lg mb-2">Select an email to read</h3>
-        <p className="max-w-xs">Click on an email from the list to view its contents here.</p>
+        <h3 className="font-bold text-2xl mb-3 italic text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+          Select an email to read
+        </h3>
+        <p className="max-w-xs text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          Click on an email from the list to view its contents here.
+        </p>
       </div>
     );
   }
@@ -116,48 +120,73 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
       {/* Actions Header */}
-      <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white/95 backdrop-blur z-10">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between p-4 border-b-2 border-[#0A0A0A]/10 sticky top-0 bg-white/98 backdrop-blur z-10">
+        <div className="flex items-center gap-1">
           {onClose && (
-             <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden">
+             <Button 
+               variant="ghost" 
+               size="icon" 
+               onClick={onClose} 
+               className="md:hidden rounded-full hover:bg-[#FFF8F0]"
+             >
                <CornerUpLeft className="h-4 w-4" />
              </Button>
           )}
-          <Button variant="ghost" size="icon" title="Reply" onClick={() => setComposeMode('reply')}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            title="Reply" 
+            onClick={() => setComposeMode('reply')}
+            className="rounded-full hover:bg-[#FFF8F0]"
+          >
             <Reply className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" title="Reply All" onClick={() => setComposeMode('replyAll')}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            title="Reply All" 
+            onClick={() => setComposeMode('replyAll')}
+            className="rounded-full hover:bg-[#FFF8F0]"
+          >
             <ReplyAll className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" title="Forward" onClick={() => setComposeMode('forward')}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            title="Forward" 
+            onClick={() => setComposeMode('forward')}
+            className="rounded-full hover:bg-[#FFF8F0]"
+          >
             <Forward className="h-4 w-4" />
           </Button>
-          <div className="h-6 w-px bg-gray-300 mx-1" />
+          <div className="h-6 w-px bg-[#0A0A0A]/10 mx-2" />
           <Button 
             variant="ghost" 
             size="icon" 
             title="Mark as unread"
             onClick={handleMarkAsUnread}
+            className="rounded-full hover:bg-[#FFF8F0]"
           >
             <Mail className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
             <Button 
               variant="ghost" 
               size="icon" 
               title={email.isStarred ? "Unstar" : "Star"}
               onClick={handleToggleStar}
+              className="rounded-full hover:bg-[#FFF8F0]"
             >
                 <Star className={cn(
                   "h-4 w-4",
-                  email.isStarred ? 'text-yellow-400 fill-yellow-400' : ''
+                  email.isStarred ? 'text-[#FF6B6B] fill-[#FF6B6B]' : 'text-[#0A0A0A]/30'
                 )} />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-red-500 hover:text-red-600 hover:bg-red-50" 
+              className="rounded-full text-[#FF6B6B] hover:text-[#FF6B6B] hover:bg-[#FF6B6B]/10" 
               title="Delete"
               onClick={handleDelete}
               disabled={deleteEmail.isPending}
@@ -169,71 +198,91 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
               size="icon"
               title="Open in Gmail"
               onClick={handleOpenInGmail}
+              className="rounded-full hover:bg-[#FFF8F0]"
             >
                 <ExternalLink className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="rounded-full hover:bg-[#FFF8F0]"
+            >
                 <MoreVertical className="h-4 w-4" />
             </Button>
         </div>
       </div>
 
       {/* Email Header */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-6">
-           <h1 className="text-2xl font-bold leading-tight">{email.subject || '(No subject)'}</h1>
+      <div className="p-8">
+        <div className="flex items-start justify-between mb-8">
+           <h1 className="text-3xl font-bold italic leading-tight text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+             {email.subject || '(No subject)'}
+           </h1>
            {email.labels && email.labels.length > 0 && (
                <div className="flex gap-2">
                    {email.labels.map((label: string) => (
-                       <span key={label} className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">{label}</span>
+                       <span 
+                         key={label} 
+                         className="px-3 py-1 bg-[#FFF8F0] border-2 border-[#0A0A0A] rounded-full text-xs font-bold uppercase"
+                         style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                       >
+                         {label}
+                       </span>
                    ))}
                </div>
            )}
         </div>
         
-        <div className="flex items-start gap-4 mb-6">
-          <Avatar>
+        <div className="flex items-start gap-4 mb-8">
+          <Avatar className="h-12 w-12 border-2 border-[#0A0A0A]">
             <AvatarImage src={undefined} />
-            <AvatarFallback>{(email.fromName || email.fromEmail).charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-[#10F9A0] text-[#0A0A0A] font-bold text-lg">
+              {(email.fromName || email.fromEmail).charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-                <div className="font-semibold">{email.fromName || email.fromEmail}</div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+            <div className="flex items-center justify-between mb-1">
+                <div className="font-bold text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  {email.fromName || email.fromEmail}
+                </div>
+                <div className="text-xs text-[#0A0A0A]/50 flex items-center gap-1.5 font-medium" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    <Clock className="h-3.5 w-3.5" />
                     {new Date(email.receivedAt).toLocaleString()}
                 </div>
             </div>
-            <div className="text-sm text-muted-foreground truncate">
+            <div className="text-sm text-[#0A0A0A]/60 truncate" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               {`<${email.fromEmail}>`}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-                To: <span className="text-gray-700">{email.toEmails && email.toEmails.length > 0 ? email.toEmails.join(', ') : 'Me'}</span>
+            <div className="text-sm text-[#0A0A0A]/60 mt-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                To: <span className="text-[#0A0A0A] font-medium">{email.toEmails && email.toEmails.length > 0 ? email.toEmails.join(', ') : 'Me'}</span>
             </div>
           </div>
         </div>
 
-        <div className="border-t my-6" />
+        <div className="border-t-2 border-[#0A0A0A]/10 my-8" />
 
         {/* AI Summary */}
         {email.aiSummary ? (
-          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <span className="text-sm font-semibold text-purple-900">AI Summary</span>
+          <div className="mb-8 p-6 bg-gradient-to-br from-[#C77DFF]/10 to-[#10F9A0]/10 border-2 border-[#C77DFF] rounded-[2rem]">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-5 w-5 text-[#C77DFF]" />
+              <span className="text-sm font-bold uppercase tracking-wide text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                AI Summary
+              </span>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">{email.aiSummary}</p>
+            <p className="text-base text-[#0A0A0A]/80 leading-relaxed" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {email.aiSummary}
+            </p>
           </div>
         ) : (
-          <div className="mb-6">
+          <div className="mb-8">
             <Button
-              variant="outline"
-              size="sm"
               onClick={handleSummarize}
               disabled={summarizeEmail.isPending}
-              className="gap-2"
+              className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 py-2 font-bold uppercase tracking-wide shadow-[3px_3px_0px_0px_rgba(199,125,255,1)] hover:shadow-[5px_5px_0px_0px_rgba(199,125,255,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4 mr-2" />
               {summarizeEmail.isPending ? 'Generating...' : 'Generate AI Summary'}
             </Button>
           </div>
@@ -241,35 +290,36 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
 
         {/* Email Body */}
         <div 
-            className="prose prose-sm max-w-none text-gray-800"
+            className="prose prose-sm max-w-none text-[#0A0A0A]/80"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             dangerouslySetInnerHTML={{ __html: email.bodyHtml || email.snippet || '' }}
         />
         
         {/* Attachments */}
         {email.attachments && email.attachments.length > 0 && (
-            <div className="mt-8 p-4 border rounded bg-gray-50">
-                <p className="text-sm font-medium mb-2">
+            <div className="mt-10 p-6 border-2 border-[#0A0A0A]/10 rounded-[2rem] bg-[#FFF8F0]">
+                <p className="text-sm font-bold uppercase tracking-wide mb-4 text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                   Attachments ({email.attachments.length})
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                     {email.attachments.map((attachment: any) => (
                         <button
                             key={attachment.id}
                             onClick={() => handleDownloadAttachment(attachment.id, attachment.filename)}
-                            className="group flex items-center gap-2 p-3 bg-white border rounded hover:border-blue-500 hover:shadow-sm transition-all max-w-xs cursor-pointer"
+                            className="group flex items-center gap-3 p-4 bg-white border-2 border-[#0A0A0A] rounded-xl hover:shadow-[4px_4px_0px_0px_rgba(16,249,160,1)] hover:-translate-y-0.5 transition-all duration-200 max-w-xs cursor-pointer"
                         >
-                            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-xs font-semibold">
+                            <div className="flex-shrink-0 w-12 h-12 bg-[#10F9A0] border-2 border-[#0A0A0A] rounded-lg flex items-center justify-center text-[#0A0A0A] text-xs font-bold">
                                 {attachment.filename.split('.').pop()?.toUpperCase() || 'FILE'}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
+                                <p className="text-sm font-bold text-[#0A0A0A] truncate" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                                     {attachment.filename}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-[#0A0A0A]/60 font-medium" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                                     {(attachment.size / 1024).toFixed(1)} KB
                                 </p>
                             </div>
-                            <Download className="h-4 w-4 text-gray-400 group-hover:text-blue-600" />
+                            <Download className="h-4 w-4 text-[#0A0A0A]/40 group-hover:text-[#0A0A0A]" />
                         </button>
                     ))}
                 </div>

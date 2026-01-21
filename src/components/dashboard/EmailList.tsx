@@ -141,14 +141,16 @@ export function EmailList({
         style={style}
         onClick={() => !isSelectMode && onSelectEmail(email.id)}
         className={cn(
-          "flex flex-col gap-1 px-4 py-3 cursor-pointer hover:bg-accent transition-colors border-b",
-          selectedEmailId === email.id ? "bg-accent" : "bg-white",
-          !email.isRead && "font-semibold bg-blue-50/50",
-          isSelected && "bg-blue-100"
+          "flex flex-col gap-1.5 px-4 py-3 cursor-pointer transition-all duration-150 border-b border-[#0A0A0A]/5",
+          selectedEmailId === email.id 
+            ? "bg-[#FFF8F0] border-l-4 border-l-[#10F9A0]" 
+            : "bg-white hover:bg-[#FFF8F0]/50",
+          !email.isRead && "bg-[#10F9A0]/5",
+          isSelected && "bg-[#C77DFF]/10"
         )}
       >
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {isSelectMode && (
               <Checkbox
                 checked={isSelected}
@@ -163,20 +165,30 @@ export function EmailList({
             >
               <Star className={cn(
                 "h-4 w-4",
-                email.isStarred ? "text-yellow-400 fill-yellow-400" : "text-gray-300 hover:text-yellow-400"
+                email.isStarred ? "text-[#FF6B6B] fill-[#FF6B6B]" : "text-gray-300 hover:text-[#FF6B6B]"
               )} />
             </button>
-            <span className="font-medium truncate">{email.fromName || email.fromEmail}</span>
+            <span className={cn(
+              "truncate",
+              !email.isRead ? "font-bold text-[#0A0A0A]" : "font-medium text-[#0A0A0A]/80"
+            )} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {email.fromName || email.fromEmail}
+            </span>
           </div>
           <span className={cn(
-              "text-xs whitespace-nowrap",
-              !email.isRead ? "text-blue-600" : "text-muted-foreground"
-          )}>
+              "text-xs whitespace-nowrap font-medium",
+              !email.isRead ? "text-[#10F9A0] font-bold" : "text-[#0A0A0A]/50"
+          )} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             {formatDate(email.receivedAt)}
           </span>
         </div>
-        <div className="text-sm truncate">{email.subject || '(No subject)'}</div>
-        <div className="text-xs text-muted-foreground truncate">
+        <div className={cn(
+          "text-sm truncate pl-6",
+          !email.isRead ? "font-semibold text-[#0A0A0A]" : "text-[#0A0A0A]/70"
+        )} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          {email.subject || '(No subject)'}
+        </div>
+        <div className="text-xs text-[#0A0A0A]/50 truncate pl-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
           {email.snippet}
         </div>
       </div>
@@ -184,37 +196,45 @@ export function EmailList({
   };
   
   return (
-    <div className="flex flex-col h-full border-r bg-white">
+    <div className="flex flex-col h-full border-r-2 border-[#0A0A0A]/10 bg-white">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-4 border-b">
+      <div className="flex items-center gap-2 p-3 border-b-2 border-[#0A0A0A]/10">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#0A0A0A]/40" />
           <Input 
             placeholder="Search mail (press / to focus)" 
-            className="pl-8" 
+            className="pl-9 border-2 border-[#0A0A0A]/20 rounded-xl focus:border-[#10F9A0] focus:ring-2 focus:ring-[#10F9A0]/20" 
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             onChange={(e) => onSearch(e.target.value)}
             id="email-search-input"
           />
         </div>
-        <Button variant="ghost" size="icon" onClick={onRefresh} title="Refresh (r)">
-          <RotateCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onRefresh} 
+          title="Refresh (r)"
+          className="rounded-full hover:bg-[#10F9A0]/10"
+        >
+          <RotateCw className={cn("h-4 w-4 text-[#0A0A0A]", isSyncing && "animate-spin text-[#10F9A0]")} />
         </Button>
       </div>
 
       {/* Sync Status Banner */}
       {isSyncing && (
-        <div className="bg-blue-50 border-b border-blue-200 px-4 py-2 flex items-center gap-2 text-sm text-blue-700">
-          <RotateCw className="h-4 w-4 animate-spin" />
+        <div className="bg-[#10F9A0]/10 border-b-2 border-[#10F9A0] px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <RotateCw className="h-4 w-4 animate-spin text-[#10F9A0]" />
           <span>Syncing emails from Gmail...</span>
         </div>
       )}
 
       {/* Action Bar */}
-      <div className="flex items-center gap-1 p-2 border-b bg-gray-50/50">
+      <div className="flex items-center gap-2 p-2 border-b-2 border-[#0A0A0A]/10 bg-[#FFF8F0]">
         <Button 
           variant="ghost" 
           size="sm" 
-          className="h-8"
+          className="h-8 rounded-full font-medium hover:bg-white"
+          style={{ fontFamily: 'Space Grotesk, sans-serif' }}
           onClick={() => {
             setIsSelectMode(!isSelectMode);
             if (!isSelectMode) {
@@ -229,14 +249,15 @@ export function EmailList({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8"
+            className="h-8 rounded-full font-medium hover:bg-white"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             onClick={toggleSelectAll}
           >
             {selectedEmails.length === emails.length ? 'Deselect All' : 'Select All'}
           </Button>
         )}
         {selectedEmails.length > 0 && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-bold text-[#0A0A0A] px-2 py-1 bg-white rounded-full" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             {selectedEmails.length} selected
           </span>
         )}
@@ -244,7 +265,7 @@ export function EmailList({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8" 
+              className="h-8 w-8 rounded-full hover:bg-white" 
               title="Mark as read"
               onClick={markSelectedAsRead}
               disabled={!selectedEmailId && selectedEmails.length === 0}
@@ -254,7 +275,7 @@ export function EmailList({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8" 
+              className="h-8 w-8 rounded-full hover:bg-white" 
               title="Mark as unread"
               onClick={markSelectedAsUnread}
               disabled={!selectedEmailId && selectedEmails.length === 0}
@@ -264,7 +285,7 @@ export function EmailList({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" 
+              className="h-8 w-8 rounded-full text-[#FF6B6B] hover:text-[#FF6B6B] hover:bg-[#FF6B6B]/10" 
               title="Delete (#)"
               onClick={handleDeleteSelected}
               disabled={!selectedEmailId && selectedEmails.length === 0}
@@ -289,8 +310,8 @@ export function EmailList({
             ))}
           </div>
         ) : emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-muted-foreground p-4 text-center">
-            <p>No emails found</p>
+          <div className="flex flex-col items-center justify-center h-40 p-4 text-center">
+            <p className="text-[#0A0A0A]/60 font-medium" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>No emails found</p>
           </div>
         ) : (
           <List
@@ -307,27 +328,31 @@ export function EmailList({
       </div>
       
       {/* Pagination */}
-      <div className="p-2 border-t flex items-center justify-between text-sm text-muted-foreground bg-gray-50/50">
-        <span>
+      <div className="p-3 border-t-2 border-[#0A0A0A]/10 flex items-center justify-between text-sm bg-[#FFF8F0]">
+        <span className="font-medium text-[#0A0A0A]/70" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
           {totalEmails > 0 ? `${startIndex}-${endIndex} of ${totalEmails}` : 'No emails'}
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-1 items-center">
           <Button 
             variant="ghost" 
             size="icon" 
             disabled={page === 1}
             onClick={() => onPageChange(page - 1)}
             title="Previous page (k)"
+            className="h-8 w-8 rounded-full hover:bg-white disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="px-2 flex items-center">{page}/{totalPages || 1}</span>
+          <span className="px-3 flex items-center font-bold text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            {page}/{totalPages || 1}
+          </span>
           <Button 
             variant="ghost" 
             size="icon" 
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
             title="Next page (j)"
+            className="h-8 w-8 rounded-full hover:bg-white disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
