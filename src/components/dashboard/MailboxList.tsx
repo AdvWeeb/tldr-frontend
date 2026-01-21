@@ -74,10 +74,10 @@ export function MailboxList({
       {/* Account Header */}
       <div className="p-4 border-b-2 border-[#0A0A0A]/10">
         <div className="mb-4">
-          <div className="font-bold text-[#0A0A0A] text-lg" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <div className="font-semibold text-[#0A0A0A] text-base">
             {currentMailbox?.email?.split('@')[0] || 'Baked Design'}
           </div>
-          <div className="text-sm text-[#0A0A0A]/60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <div className="text-sm text-[#0A0A0A]/60">
             {currentMailbox?.email || 'work@baked.design'}
           </div>
         </div>
@@ -85,8 +85,7 @@ export function MailboxList({
         {/* Compose Button */}
         <Button
           onClick={() => setIsComposeOpen(true)}
-          className="w-full bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-4 py-2.5 font-bold uppercase tracking-wide shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
-          style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          className="w-full bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-4 py-2.5 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
         >
           <Edit className="h-4 w-4 mr-2" />
           <span>New email</span>
@@ -95,8 +94,8 @@ export function MailboxList({
 
       {/* Core Folders */}
       <div className="flex-1 overflow-y-auto py-3">
-        <div className="px-3 mb-3">
-          <div className="text-xs font-bold text-[#0A0A0A]/50 uppercase tracking-wider mb-1 px-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+        <div className="px-3 mb-2">
+          <div className="text-xs font-semibold text-[#0A0A0A]/50 uppercase tracking-wide mb-1 px-2">
             Core
           </div>
         </div>
@@ -111,12 +110,11 @@ export function MailboxList({
                 variant="ghost"
                 onClick={() => onSelectFolder(folder.id)}
                 className={cn(
-                  "w-full justify-between h-auto py-2.5 px-3 font-medium rounded-xl transition-all duration-200",
+                  "w-full justify-between h-auto py-2 px-3 rounded-xl transition-all duration-200",
                   isActive 
-                    ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-bold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
-                    : "hover:bg-white/60 text-[#0A0A0A]/80"
+                    ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-semibold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
+                    : "hover:bg-white/60 text-[#0A0A0A]/80 font-normal"
                 )}
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="h-4 w-4" />
@@ -124,7 +122,7 @@ export function MailboxList({
                 </div>
                 {folder.count > 0 && (
                   <span className={cn(
-                    "text-xs font-bold px-2 py-0.5 rounded-full",
+                    "text-xs font-semibold px-2 py-0.5 rounded-full",
                     isActive ? "bg-[#0A0A0A]/10" : "bg-white text-[#0A0A0A]/60"
                   )}>
                     {folder.count}
@@ -140,8 +138,7 @@ export function MailboxList({
           <Button
             variant="ghost"
             onClick={() => setIsManagementOpen(!isManagementOpen)}
-            className="flex items-center gap-2 text-xs font-bold text-[#0A0A0A]/50 uppercase tracking-wider mb-1 px-2 h-auto hover:text-[#0A0A0A]"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            className="flex items-center gap-2 text-xs font-semibold text-[#0A0A0A]/50 uppercase tracking-wide mb-1 px-2 h-auto hover:text-[#0A0A0A]"
           >
             <span>Management</span>
             <ChevronDown className={cn("h-3 w-3 transition-transform", isManagementOpen && "rotate-180")} />
@@ -159,12 +156,11 @@ export function MailboxList({
                   variant="ghost"
                   onClick={() => onSelectFolder(folder.id)}
                   className={cn(
-                    "w-full justify-between h-auto py-2.5 px-3 font-medium rounded-xl transition-all duration-200",
+                    "w-full justify-between h-auto py-2 px-3 rounded-xl transition-all duration-200",
                     isActive 
-                      ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-bold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
-                      : "hover:bg-white/60 text-[#0A0A0A]/80"
+                      ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-semibold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
+                      : "hover:bg-white/60 text-[#0A0A0A]/80 font-normal"
                   )}
-                  style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className="h-4 w-4" />
@@ -172,7 +168,7 @@ export function MailboxList({
                   </div>
                   {folder.count > 0 && (
                     <span className={cn(
-                      "text-xs font-bold px-2 py-0.5 rounded-full",
+                      "text-xs font-semibold px-2 py-0.5 rounded-full",
                       isActive ? "bg-[#0A0A0A]/10" : "bg-white text-[#0A0A0A]/60"
                     )}>
                       {folder.count}
@@ -191,8 +187,7 @@ export function MailboxList({
               <Button
                 variant="ghost"
                 onClick={() => setIsLabelsOpen(!isLabelsOpen)}
-                className="flex items-center gap-2 text-xs font-bold text-[#0A0A0A]/50 uppercase tracking-wider mb-1 px-2 h-auto hover:text-[#0A0A0A]"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                className="flex items-center gap-2 text-xs font-semibold text-[#0A0A0A]/50 uppercase tracking-wide mb-1 px-2 h-auto hover:text-[#0A0A0A]"
               >
                 <span>Labels</span>
                 <ChevronDown className={cn("h-3 w-3 transition-transform", isLabelsOpen && "rotate-180")} />
@@ -209,12 +204,11 @@ export function MailboxList({
                       variant="ghost"
                       onClick={() => onSelectFolder(`label:${label.id}`)}
                       className={cn(
-                        "w-full justify-between h-auto py-2.5 px-3 font-medium rounded-xl transition-all duration-200",
+                        "w-full justify-between h-auto py-2 px-3 rounded-xl transition-all duration-200",
                         isActive 
-                          ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-bold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
-                          : "hover:bg-white/60 text-[#0A0A0A]/80"
+                          ? "bg-[#10F9A0] text-[#0A0A0A] hover:bg-[#10F9A0] font-semibold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
+                          : "hover:bg-white/60 text-[#0A0A0A]/80 font-normal"
                       )}
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                     >
                       <div className="flex items-center gap-3">
                         <Tag 
@@ -227,7 +221,7 @@ export function MailboxList({
                       </div>
                       {(label.messagesUnread ?? 0) > 0 && (
                         <span className={cn(
-                          "text-xs font-bold px-2 py-0.5 rounded-full",
+                          "text-xs font-semibold px-2 py-0.5 rounded-full",
                           isActive ? "bg-[#0A0A0A]/10" : "bg-white text-[#0A0A0A]/60"
                         )}>
                           {label.messagesUnread}
@@ -244,7 +238,7 @@ export function MailboxList({
         {/* Mailbox Switcher (if multiple mailboxes) */}
         {mailboxes.length > 1 && (
           <div className="mt-6 px-3">
-            <div className="text-xs font-bold text-[#0A0A0A]/50 uppercase tracking-wider mb-3 px-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            <div className="text-xs font-semibold text-[#0A0A0A]/50 uppercase tracking-wide mb-3 px-2">
               Accounts
             </div>
             <div className="space-y-1 px-2">
@@ -254,15 +248,14 @@ export function MailboxList({
                   variant="ghost"
                   onClick={() => onSelectMailbox(mailbox.id)}
                   className={cn(
-                    "w-full justify-start gap-3 h-auto py-2.5 px-3 font-medium rounded-xl transition-all duration-200",
+                    "w-full justify-start gap-3 h-auto py-2 px-3 rounded-xl transition-all duration-200",
                     selectedMailboxId === mailbox.id 
-                      ? "bg-white text-[#0A0A0A] font-bold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
-                      : "hover:bg-white/60 text-[#0A0A0A]/80"
+                      ? "bg-white text-[#0A0A0A] font-semibold shadow-[2px_2px_0px_0px_rgba(10,10,10,0.1)]" 
+                      : "hover:bg-white/60 text-[#0A0A0A]/80 font-normal"
                   )}
-                  style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 >
                   <Avatar className="h-7 w-7 border-2 border-[#0A0A0A]">
-                    <AvatarFallback className="text-xs font-bold bg-[#10F9A0] text-[#0A0A0A]">
+                    <AvatarFallback className="text-xs font-semibold bg-[#10F9A0] text-[#0A0A0A]">
                       {mailbox.email.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>

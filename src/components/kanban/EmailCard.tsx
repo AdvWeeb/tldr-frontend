@@ -106,19 +106,19 @@ export function EmailCard({ email, index }: EmailCardProps) {
         >
           <Card
             className={cn(
-              'cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md',
-              snapshot.isDragging && 'shadow-lg ring-2 ring-primary',
-              !email.isRead && 'bg-blue-50/50 border-l-4 border-l-blue-500'
+              'cursor-grab active:cursor-grabbing transition-all duration-200 border-2 border-[#0A0A0A] rounded-xl hover:shadow-[4px_4px_0px_0px_rgba(16,249,160,1)] hover:-translate-y-0.5',
+              snapshot.isDragging && 'shadow-[6px_6px_0px_0px_rgba(16,249,160,1)] scale-105 rotate-2',
+              !email.isRead && 'bg-[#10F9A0]/10 border-l-4 border-l-[#10F9A0]'
             )}
             onClick={handleCardClick}
           >
             <CardHeader className="p-4 pb-2">
               {/* Snooze Banner */}
               {email.isSnoozed && email.snoozedUntil && (
-                <div className="mb-2 p-2 bg-orange-50 border border-orange-200 rounded flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1 text-orange-700">
-                    <Clock className="h-3 w-3" />
-                    <span className="font-medium">
+                <div className="mb-3 p-3 bg-[#FF6B6B]/10 border-2 border-[#FF6B6B] rounded-xl flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-[#FF6B6B] font-semibold">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>
                       Until {new Date(email.snoozedUntil).toLocaleString()}
                     </span>
                   </div>
@@ -126,7 +126,7 @@ export function EmailCard({ email, index }: EmailCardProps) {
                     variant="ghost"
                     size="sm"
                     onClick={handleUnsnooze}
-                    className="h-5 px-2 text-orange-600 hover:text-orange-700 hover:bg-orange-100"
+                    className="h-6 px-3 text-[#FF6B6B] hover:text-[#FF6B6B] hover:bg-[#FF6B6B]/10 font-semibold rounded-full"
                   >
                     Unsnooze
                   </Button>
@@ -134,19 +134,19 @@ export function EmailCard({ email, index }: EmailCardProps) {
               )}
               
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <Avatar className="h-9 w-9 border-2 border-[#0A0A0A]">
+                    <AvatarFallback className="text-xs bg-[#10F9A0] text-[#0A0A0A] font-semibold">
                       {(email.fromName || email.fromEmail)
                         .charAt(0)
                         .toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">
+                    <p className="font-semibold text-sm truncate text-[#0A0A0A]">
                       {email.fromName || email.fromEmail}
                     </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <p className="text-xs text-[#0A0A0A]/50 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {formatDate(email.receivedAt)}
                     </p>
@@ -156,14 +156,14 @@ export function EmailCard({ email, index }: EmailCardProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-7 w-7 rounded-full hover:bg-[#FFF8F0]"
                     onClick={handleToggleStar}
                   >
                     <Star
                       className={cn(
                         'h-4 w-4',
                         email.isStarred
-                          ? 'text-yellow-400 fill-yellow-400'
+                          ? 'text-[#FF6B6B] fill-[#FF6B6B]'
                           : 'text-gray-300'
                       )}
                     />
@@ -173,37 +173,37 @@ export function EmailCard({ email, index }: EmailCardProps) {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-6 w-6"
+                        className="h-7 w-7 rounded-full hover:bg-[#FFF8F0]"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="border-2 border-[#0A0A0A] rounded-xl shadow-[4px_4px_0px_0px_rgba(10,10,10,0.1)]">
                       {email.isSnoozed ? (
-                        <DropdownMenuItem onClick={handleUnsnooze}>
+                        <DropdownMenuItem onClick={handleUnsnooze} className="rounded-lg cursor-pointer">
                           <Clock className="h-4 w-4 mr-2" />
                           Unsnooze
                         </DropdownMenuItem>
                       ) : (
                         <>
-                          <DropdownMenuItem onClick={(e) => handleSnooze(1, e)}>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(1, e)} className="rounded-lg cursor-pointer">
                             <Calendar className="h-4 w-4 mr-2" />
                             Snooze 1 hour
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSnooze(4, e)}>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(4, e)} className="rounded-lg cursor-pointer">
                             <Calendar className="h-4 w-4 mr-2" />
                             Snooze 4 hours
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSnooze(24, e)}>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(24, e)} className="rounded-lg cursor-pointer">
                             <Calendar className="h-4 w-4 mr-2" />
                             Snooze 1 day
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSnooze(72, e)}>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(72, e)} className="rounded-lg cursor-pointer">
                             <Calendar className="h-4 w-4 mr-2" />
                             Snooze 3 days
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => handleSnooze(168, e)}>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(168, e)} className="rounded-lg cursor-pointer">
                             <Calendar className="h-4 w-4 mr-2" />
                             Snooze 1 week
                           </DropdownMenuItem>
@@ -215,12 +215,12 @@ export function EmailCard({ email, index }: EmailCardProps) {
               </div>
             </CardHeader>
 
-            <CardContent className="p-4 pt-2 space-y-2">
+            <CardContent className="p-4 pt-2 space-y-3">
               {/* Subject */}
               <h4
                 className={cn(
-                  'font-medium text-sm line-clamp-2',
-                  !email.isRead && 'font-bold'
+                  'text-sm line-clamp-2 text-[#0A0A0A]',
+                  !email.isRead ? 'font-semibold' : 'font-normal'
                 )}
               >
                 {email.subject || '(No subject)'}
@@ -228,14 +228,14 @@ export function EmailCard({ email, index }: EmailCardProps) {
 
               {/* AI Summary or Snippet */}
               {email.aiSummary ? (
-                <div className="flex items-start gap-1">
-                  <Sparkles className="h-3 w-3 text-purple-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-gray-700 flex-1">
+                <div className="flex items-start gap-2 p-2 bg-[#C77DFF]/10 border-2 border-[#C77DFF] rounded-lg">
+                  <Sparkles className="h-3.5 w-3.5 text-[#C77DFF] flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-[#0A0A0A]/80 flex-1 leading-relaxed">
                     {email.aiSummary}
                   </p>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground line-clamp-3">
+                <p className="text-xs text-[#0A0A0A]/60 line-clamp-3 leading-relaxed">
                   {email.snippet || 'No preview available'}
                 </p>
               )}
@@ -243,19 +243,19 @@ export function EmailCard({ email, index }: EmailCardProps) {
               {/* Badges */}
               <div className="flex items-center gap-2 flex-wrap">
                 {!email.isRead && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="text-xs bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-[#10F9A0]">
                     <Mail className="h-3 w-3 mr-1" />
                     Unread
                   </Badge>
                 )}
                 {email.hasAttachments && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge className="text-xs bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold hover:bg-white">
                     <Paperclip className="h-3 w-3 mr-1" />
                     {email.attachments?.length || 1}
                   </Badge>
                 )}
                 {email.category && email.category !== 'primary' && (
-                  <Badge variant="outline" className="text-xs capitalize">
+                  <Badge className="text-xs bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] font-semibold capitalize hover:bg-white">
                     {email.category}
                   </Badge>
                 )}

@@ -83,36 +83,48 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div 
-        className="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-3xl rounded-[2rem] border-2 border-[#0A0A0A] shadow-[8px_8px_0px_0px_rgba(10,10,10,1)] overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gray-100 px-4 py-3 border-b flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Kanban Board Settings</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 rounded-full">
-            <X className="h-4 w-4" />
+        <div className="bg-[#FFF8F0] px-6 py-5 border-b-2 border-[#0A0A0A] flex justify-between items-center">
+          <h2 className="text-2xl font-bold italic text-[#0A0A0A]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+            Kanban Board Settings
+          </h2>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose} 
+            className="h-9 w-9 rounded-full hover:bg-white"
+          >
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
         <div className="p-6 overflow-y-auto space-y-6">
           {columns.length === 0 && !isLoading && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No columns configured for your board.</p>
-              <Button onClick={handleInitialize}>Initialize Default Columns</Button>
+            <div className="text-center py-12 px-6">
+              <p className="text-[#0A0A0A]/60 mb-6 text-lg">No columns configured for your board.</p>
+              <Button 
+                onClick={handleInitialize}
+                className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-6 py-3 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[5px_5px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+              >
+                Initialize Default Columns
+              </Button>
             </div>
           )}
 
           <div className="space-y-4">
             {localColumns.map((col) => (
-              <div key={col.id} className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50">
-                <GripVertical className="h-5 w-5 text-gray-400 cursor-grab" />
+              <div key={col.id} className="flex items-center gap-3 p-4 border-2 border-[#0A0A0A] rounded-xl bg-[#FFF8F0] hover:shadow-[3px_3px_0px_0px_rgba(10,10,10,0.1)] transition-shadow">
+                <GripVertical className="h-5 w-5 text-[#0A0A0A]/40 cursor-grab hover:text-[#0A0A0A]" />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
                   <div>
-                    <Label className="text-[10px] uppercase text-gray-500">Title</Label>
+                    <Label className="text-xs font-semibold text-[#0A0A0A]/60 uppercase tracking-wide">Title</Label>
                     <Input 
                       value={col.title} 
                       onChange={(e) => {
@@ -120,11 +132,11 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
                         setLocalColumns(newCols);
                       }}
                       onBlur={() => col.title !== columns.find((c: any) => c.id === col.id)?.title && handleUpdateColumn(col.id, { title: col.title })}
-                      className="h-8 text-sm"
+                      className="h-9 text-sm border-2 border-[#0A0A0A]/20 rounded-lg mt-1"
                     />
                   </div>
                   <div>
-                    <Label className="text-[10px] uppercase text-gray-500">Gmail Label ID</Label>
+                    <Label className="text-xs font-semibold text-[#0A0A0A]/60 uppercase tracking-wide">Gmail Label ID</Label>
                     <Input 
                       value={col.gmailLabelId || ''} 
                       placeholder="e.g. STARRED, INBOX"
@@ -133,13 +145,13 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
                         setLocalColumns(newCols);
                       }}
                       onBlur={() => col.gmailLabelId !== columns.find((c: any) => c.id === col.id)?.gmailLabelId && handleUpdateColumn(col.id, { gmailLabelId: col.gmailLabelId || null })}
-                      className="h-8 text-sm"
+                      className="h-9 text-sm border-2 border-[#0A0A0A]/20 rounded-lg mt-1"
                     />
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <Label className="text-[10px] uppercase text-gray-500">Color</Label>
-                      <div className="flex gap-2">
+                      <Label className="text-xs font-semibold text-[#0A0A0A]/60 uppercase tracking-wide">Color</Label>
+                      <div className="flex gap-2 mt-1">
                         <Input 
                           type="color" 
                           value={col.color} 
@@ -148,7 +160,7 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
                             setLocalColumns(newCols);
                           }}
                           onBlur={() => col.color !== columns.find((c: any) => c.id === col.id)?.color && handleUpdateColumn(col.id, { color: col.color })}
-                          className="h-8 w-12 p-0 border-0 bg-transparent"
+                          className="h-9 w-12 p-0 border-2 border-[#0A0A0A] rounded-lg"
                         />
                         <Input 
                           value={col.color} 
@@ -157,7 +169,7 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
                             setLocalColumns(newCols);
                           }}
                           onBlur={() => col.color !== columns.find((c: any) => c.id === col.id)?.color && handleUpdateColumn(col.id, { color: col.color })}
-                          className="h-8 text-xs font-mono"
+                          className="h-9 text-xs font-mono border-2 border-[#0A0A0A]/20 rounded-lg"
                         />
                       </div>
                     </div>
@@ -167,7 +179,7 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
                         size="icon" 
                         onClick={() => handleDeleteColumn(col.id)}
                         disabled={col.isDefault}
-                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="h-9 w-9 text-[#FF6B6B] hover:text-[#FF6B6B] hover:bg-[#FF6B6B]/10 rounded-full"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -179,63 +191,80 @@ export function KanbanSettingsModal({ isOpen, onClose }: KanbanSettingsModalProp
           </div>
 
           {isAdding ? (
-            <div className="p-4 border-2 border-dashed rounded-lg space-y-4">
-              <h3 className="text-sm font-medium">Add New Column</h3>
+            <div className="p-5 border-2 border-dashed border-[#0A0A0A]/30 rounded-xl bg-[#FFF8F0] space-y-4">
+              <h3 className="text-base font-bold text-[#0A0A0A]">Add New Column</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="new-title">Title</Label>
+                  <Label htmlFor="new-title" className="text-sm font-semibold">Title</Label>
                   <Input 
                     id="new-title" 
                     value={newColumn.title} 
                     onChange={(e) => setNewColumn({ ...newColumn, title: e.target.value })}
                     placeholder="e.g. Archive"
+                    className="border-2 border-[#0A0A0A]/20 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new-label">Gmail Label Mapping</Label>
+                  <Label htmlFor="new-label" className="text-sm font-semibold">Gmail Label Mapping</Label>
                   <Input 
                     id="new-label" 
                     value={newColumn.gmailLabelId} 
                     onChange={(e) => setNewColumn({ ...newColumn, gmailLabelId: e.target.value })}
                     placeholder="e.g. ARCHIVE"
+                    className="border-2 border-[#0A0A0A]/20 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new-color">Color</Label>
+                  <Label htmlFor="new-color" className="text-sm font-semibold">Color</Label>
                   <div className="flex gap-2">
                     <Input 
                       id="new-color" 
                       type="color" 
                       value={newColumn.color} 
                       onChange={(e) => setNewColumn({ ...newColumn, color: e.target.value })}
-                      className="h-10 w-12 p-0 border-0 bg-transparent"
+                      className="h-10 w-12 p-0 border-2 border-[#0A0A0A] rounded-lg"
                     />
                     <Input 
                       value={newColumn.color} 
                       onChange={(e) => setNewColumn({ ...newColumn, color: e.target.value })}
-                      className="flex-1 font-mono"
+                      className="flex-1 font-mono border-2 border-[#0A0A0A]/20 rounded-lg"
                     />
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
-                <Button onClick={handleAddColumn}>Create Column</Button>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setIsAdding(false)}
+                  className="rounded-full px-5 hover:bg-white"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleAddColumn}
+                  className="bg-[#10F9A0] text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 font-semibold shadow-[3px_3px_0px_0px_rgba(10,10,10,1)] hover:shadow-[4px_4px_0px_0px_rgba(10,10,10,1)] hover:scale-[1.02] transition-all duration-200"
+                >
+                  Create Column
+                </Button>
               </div>
             </div>
           ) : (
             <Button 
-              variant="outline" 
-              className="w-full border-dashed py-6" 
+              className="w-full border-2 border-dashed border-[#0A0A0A]/30 rounded-xl py-7 bg-white hover:bg-[#FFF8F0] text-[#0A0A0A] font-semibold transition-colors" 
               onClick={() => setIsAdding(true)}
             >
-              <Plus className="h-4 w-4 mr-2" /> Add New Column
+              <Plus className="h-5 w-5 mr-2" /> Add New Column
             </Button>
           )}
         </div>
 
-        <div className="bg-gray-50 px-6 py-4 border-t flex justify-end">
-          <Button onClick={onClose}>Done</Button>
+        <div className="bg-[#FFF8F0] px-6 py-5 border-t-2 border-[#0A0A0A] flex justify-end">
+          <Button 
+            onClick={onClose}
+            className="bg-[#0A0A0A] text-white border-2 border-[#0A0A0A] rounded-full px-8 py-2 font-semibold shadow-[3px_3px_0px_0px_rgba(16,249,160,1)] hover:shadow-[5px_5px_0px_0px_rgba(16,249,160,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+          >
+            Done
+          </Button>
         </div>
       </div>
     </div>

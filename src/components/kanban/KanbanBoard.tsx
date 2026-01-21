@@ -159,19 +159,20 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
   if (isLoadingColumns) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="h-10 w-10 animate-spin text-[#10F9A0]" />
+          <p className="text-sm font-medium text-[#0A0A0A]/60">Loading board...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-end">
         <Button 
-          variant="outline" 
-          size="sm" 
           onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-2"
+          className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 py-2 font-semibold shadow-[3px_3px_0px_0px_rgba(199,125,255,1)] hover:shadow-[5px_5px_0px_0px_rgba(199,125,255,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] flex items-center gap-2"
         >
           <Settings className="h-4 w-4" />
           Board Settings
@@ -179,7 +180,7 @@ export function KanbanBoard({ emails }: KanbanBoardProps) {
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4">
           {dbColumns.map((column) => (
             <Droppable key={column.id} droppableId={column.id.toString()}>
               {(provided, snapshot) => (
