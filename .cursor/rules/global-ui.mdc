@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+### Global visual style
+
+- **Overall vibe**: Bold, editorial, neo‑brutalist landing page — big expressive typography, thick borders, chunky rounded cards, playful motion and glows.
+- **Color language**:  
+  - **Background**: warm off‑white `#FFF8F0`.  
+  - **Ink / lines**: near‑black `#0A0A0A` for text and strong `border-2` outlines.  
+  - **Accents**: neon green `#10F9A0` as primary, with coral `#FF6B6B` and violet `#C77DFF` as supporting accents.  
+  - **Surfaces**: white or softly tinted panels (e.g. `#FFE5D9`) plus light gradient washes (`bg-gradient-to-br .../20`).
+
+- **Typography**:  
+  - **Body/UI**: `Space Grotesk`, clean, geometric, used for most text.  
+  - **Headings**: `Instrument Serif`, big, italic, giving a premium editorial feel.  
+  - **Scale**: very large display headlines (e.g. `clamp(3rem, 8vw, 7rem)`) and oversized section titles (`text-5xl`/`text-6xl`).
+
+- **Layout & spacing**:  
+  - Full‑viewport page (`min-h-screen`) with generous white space and consistent `container mx-auto px-8` sections.  
+  - Strong vertical rhythm with large paddings/margins (`py-12/16/24`, `mb-12/16/24`).  
+  - Grids (`md:grid-cols-12/3/4`) with asymmetric spans and tall feature cards for an editorial magazine look.
+
+- **Cards & components**:  
+  - **Shape**: very rounded (`rounded-[2rem]`, `rounded-3xl`, `rounded-[3rem]`) plus thick black borders.  
+  - **Hover behavior**: lift, slight rotation, subtle scale (`hover:-translate-y-3 hover:rotate-±1/2 hover:scale-[1.02]`) with bouncy easing (`ease-[cubic-bezier(0.175,0.885,0.32,1.275)]`) and soft, colored drop shadows.  
+  - **Decoration**: small geometric blobs/circles inside cards, low‑opacity, sometimes pulsing.
+
+- **Background effects**:  
+  - Large, blurred, low‑opacity colored circles (`bg-[#10F9A0]`, `#FF6B6B`, `#C77DFF`, `blur-3xl`, `opacity-10–20`) absolutely positioned as ambient blobs.  
+  - Custom animations like `animate-blob`, `animate-marquee`, `animate-float` to add subtle continuous motion.
+
+- **Buttons & CTAs**:  
+  - Thick pill‑shaped buttons with bold text, high contrast (black with light text, or neon with dark text).  
+  - Heavy hover affordances: scale up slightly, stronger shadow, sometimes gradient “halo” borders using `before:` pseudo‑elements.
+
+- **Micro‑branding details**:  
+  - Repeated use of italic serif headlines as section anchors.  
+  - Star ratings, pill avatars, and icon blocks inside colored squares/circles for a “designed, not generic” feel.  
+  - Overall: high contrast, playful but premium, with motion and color used as accent rather than overwhelming the content.
