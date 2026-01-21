@@ -114,52 +114,59 @@ export function Kanban() {
 
   if (isLoadingMailboxes) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Navigation />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-10 w-10 animate-spin text-[#10F9A0]" />
+            <p className="text-sm font-medium text-[#0A0A0A]/60">Loading mailboxes...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Navigation />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-8 py-12">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
+        <div className="mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div>
-              <h1 className="text-3xl font-bold">Email Kanban</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-4xl md:text-5xl font-bold italic text-[#0A0A0A] mb-3" style={{ fontFamily: 'Instrument Serif, serif' }}>
+                Email Kanban
+              </h1>
+              <p className="text-base text-[#0A0A0A]/70 mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 Manage your emails with a visual workflow
               </p>
               {currentMailbox && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Mailbox: <span className="font-medium">{currentMailbox.email}</span>
-                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FFF8F0] border-2 border-[#0A0A0A] rounded-full mt-2">
+                  <div className="w-2 h-2 bg-[#10F9A0] rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    {currentMailbox.email}
+                  </span>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {/* Load More Summaries Button */}
               {emailsWithoutSummary.length > 0 && summarizingCount === 0 && (
                 <Button
-                  variant="outline"
-                  size="sm"
                   onClick={handleLoadMoreSummaries}
-                  className="flex items-center gap-2"
+                  className="bg-white text-[#0A0A0A] border-2 border-[#0A0A0A] rounded-full px-5 py-2.5 text-sm font-bold uppercase tracking-wide shadow-[3px_3px_0px_0px_rgba(199,125,255,1)] hover:shadow-[5px_5px_0px_0px_rgba(199,125,255,1)] hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+                  style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 >
-                  <Wand2 className="h-4 w-4" />
+                  <Wand2 className="h-4 w-4 mr-2" />
                   Generate {Math.min(emailsWithoutSummary.length, MIN_SUMMARIZED_EMAILS)} Summaries
                 </Button>
               )}
               
               {/* Summarizing indicator */}
               {summarizingCount > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg">
-                  <Sparkles className="h-4 w-4 text-purple-600 animate-pulse" />
-                  <span className="text-sm text-purple-900 font-medium">
+                <div className="flex items-center gap-2 px-5 py-2.5 bg-[#C77DFF]/10 border-2 border-[#C77DFF] rounded-full">
+                  <Sparkles className="h-4 w-4 text-[#C77DFF] animate-pulse" />
+                  <span className="text-sm font-bold text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                     Generating {summarizingCount} {summarizingCount === 1 ? 'summary' : 'summaries'}...
                   </span>
                 </div>
@@ -167,21 +174,30 @@ export function Kanban() {
               
               {/* Summary stats */}
               {!isLoadingEmails && (
-                <span className="text-xs text-muted-foreground">
-                  {summarizedCount}/{emails.length} summarized
-                </span>
+                <div className="px-4 py-2 bg-[#10F9A0]/10 border-2 border-[#10F9A0] rounded-full">
+                  <span className="text-sm font-bold text-[#0A0A0A]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    {summarizedCount}/{emails.length} summarized
+                  </span>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {/* Filtering and Sorting Toolbar */}
-        {viewMode === 'BOARD_VIEW' && <FilteringSortingToolbar />}
+        {viewMode === 'BOARD_VIEW' && (
+          <div className="mb-8">
+            <FilteringSortingToolbar />
+          </div>
+        )}
 
         {/* Content: Kanban Board or Search Results */}
         {isLoadingEmails ? (
           <div className="flex items-center justify-center h-[500px]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-10 w-10 animate-spin text-[#10F9A0]" />
+              <p className="text-sm font-medium text-[#0A0A0A]/60">Loading emails...</p>
+            </div>
           </div>
         ) : viewMode === 'SEARCH_VIEW' ? (
           <div className="mt-6">
