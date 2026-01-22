@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build Vite project
+        run: npm run build
+
       - name: Run ESLint
         run: npm run lint
-
-      - name: Build NestJS project
-        run: npm run build
