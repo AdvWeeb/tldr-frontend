@@ -29,5 +29,5 @@ jobs:
         run: npm run build
 
       - name: Run ESLint
-        allows-failure: true
+        continue-on-error: true
         run: npm run lint
