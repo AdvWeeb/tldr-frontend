@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Loader2, Sparkles } from 'lucide-react';
+import { Mail, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
 import { useLogin, useInitiateGoogleOAuth } from '@/hooks/useAuth';
 import { loginSchema, type LoginFormData } from '@/schemas/loginSchema';
 import { useAuthStore } from '@/store/authStore';
@@ -56,6 +56,18 @@ export default function Login() {
 
       <div className="flex items-center justify-center py-16 px-8 relative z-10">
         <div className="mx-auto w-full max-w-[480px] space-y-8">
+          {/* Back to Home Button */}
+          <button
+            onClick={() => navigate('/')}
+            className="group flex items-center gap-2 text-[#0A0A0A] font-semibold transition-all duration-200 hover:gap-3"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          >
+            <div className="p-2 bg-[#10F9A0] border-2 border-[#0A0A0A] rounded-xl shadow-[2px_2px_0px_0px_rgba(10,10,10,0.3)] group-hover:shadow-[4px_4px_0px_0px_rgba(10,10,10,0.4)] group-hover:-translate-y-0.5 transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]">
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+            </div>
+            <span className="text-sm uppercase tracking-wide">Back to Home</span>
+          </button>
+
           <div className="space-y-4 text-center">
             <h1 className="text-5xl md:text-6xl font-bold italic font-serif text-[#0A0A0A] leading-tight" style={{ fontFamily: 'Instrument Serif, serif' }}>
               Welcome Back
