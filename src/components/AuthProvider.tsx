@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import axios from 'axios';
 
@@ -7,8 +7,15 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/v1'
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setAccessToken, logout } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
+    // Prevent double execution in React StrictMode
+    if (hasInitialized.current) {
+      return;
+    }
+    hasInitialized.current = true;
+
     const initAuth = async () => {
       try {
         console.log('AuthProvider: Checking for existing session...');
@@ -39,7 +46,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('AuthProvider: Session restored successfully');
 
       } catch (error) {
-        console.log('AuthProvider: No valid session found or session expired');
+        // Silently handle missing or expired refresh token
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          console.log('AuthProvider: No valid session found');
+        } else if (axios.isAxiosError(error) && error.response?.status === 500) {
+          console.log('AuthProvider: Server error during session restore');
+        } else {
+          console.log('AuthProvider: Session expired or unavailable');
+        }
         // No valid session, continue as logged out
         logout();
       } finally {

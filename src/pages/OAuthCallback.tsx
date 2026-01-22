@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '../hooks/useAuth';
 import { useEmailMutations } from '../hooks/useEmail';
@@ -13,8 +13,15 @@ export default function OAuthCallback() {
   const googleLoginMutation = useGoogleLogin();
   const { connectMailbox } = useEmailMutations();
   const [error, setError] = useState<string | null>(null);
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
+    // Prevent double execution in React StrictMode
+    if (hasProcessed.current) {
+      return;
+    }
+    hasProcessed.current = true;
+
     const handleOAuthCallback = async () => {
       try {
         // Check if we have the required parameters
@@ -55,12 +62,17 @@ export default function OAuthCallback() {
           navigate('/inbox', { replace: true });
         } else {
           // Login with Google (backend auto-creates mailbox)
-          await googleLoginMutation.mutateAsync({
+          // Don't use mutateAsync - use mutate to avoid catching internal errors
+          googleLoginMutation.mutate({
             code: params.code,
             codeVerifier,
+          }, {
+            onError: (err) => {
+              // Only set error for actual mutation failures
+              console.error('Google login failed:', err);
+              setError(err instanceof Error ? err.message : 'Authentication failed');
+            }
           });
-
-          navigate('/inbox', { replace: true });
         }
       } catch (err) {
         console.error('OAuth callback error:', err);
